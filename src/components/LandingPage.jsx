@@ -8,6 +8,9 @@ import "swiper/css";
 import "swiper/css/pagination";
 import { Pagination, Autoplay } from "swiper/modules";
 
+// API URL dari ENV
+const API_URL = import.meta.env.VITE_API_URL;
+
 // Emoji kategori
 const kategoriMap = {
   Whiskey: "🥃",
@@ -40,7 +43,7 @@ export default function LandingPage() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:3000/api/liquors")
+      .get(`${API_URL}/api/liquors`)
       .then((res) => setLiquors(res.data))
       .catch(() => setLiquors([]));
   }, []);
