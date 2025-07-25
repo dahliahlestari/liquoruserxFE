@@ -17,7 +17,7 @@ const kategoriMap = {
   Vodka: "🍸",
   Gin: "🍸",
   Rum: "🍹",
-  Tequila: "🧉",
+  Tequila: "🍋‍🟩",
   Wine: "🍷",
   Beer: "🍺",
   Liqueur: "🍶",
