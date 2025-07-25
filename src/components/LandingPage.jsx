@@ -13,7 +13,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 // Emoji kategori
 const kategoriMap = {
-  Whiskey: "🥃",
+  Whisky: "🥃",
   Vodka: "🍸",
   Gin: "🍸",
   Rum: "🍹",
@@ -26,9 +26,8 @@ const kategoriMap = {
 
 const NAV_LINKS = [
   { label: "Home", href: "#" },
-  { label: "Produk", href: "#products" },
-  { label: "Tentang Kami", href: "#about" },
-  { label: "Kontak", href: "#contact" },
+  { label: "Product", href: "#products" },
+  { label: "About Us", href: "#about" },
 ];
 
 const waOrderLink =
@@ -88,7 +87,7 @@ export default function LandingPage() {
             fill="#fff"
           />
         </svg>
-        <span className="hidden sm:inline animate-bounceOrder">ORDER NOW!</span>
+        <span className="hidden sm:inline animate-bounceOrder">Chat!</span>
         <style>
           {`
             @keyframes pulseOrder {
@@ -111,7 +110,7 @@ export default function LandingPage() {
       </a>
 
       {/* Navbar */}
-      <nav className="bg-white/90 shadow-lg backdrop-blur sticky top-0 z-30">
+      <nav className="bg-white/90 backdrop-blur sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex justify-between items-center h-16">
             <a href="#" className="flex items-center gap-3">
@@ -121,8 +120,8 @@ export default function LandingPage() {
                 className="w-10 h-10 object-contain rounded-xl shadow"
                 onError={(e) => (e.target.style.display = "none")}
               />
-              <span className="font-extrabold text-2xl text-blue-700 tracking-widest">
-                W3<span className="text-yellow-500">LIQUOR</span>
+              <span className="font-bold text-2xl text-yellow-900 tracking-widest">
+                W3<span className="text-yellow-900">LIQUOR</span>
               </span>
             </a>
             <div className="hidden md:flex gap-8 items-center">
@@ -130,23 +129,15 @@ export default function LandingPage() {
                 <a
                   key={lnk.label}
                   href={lnk.href}
-                  className="text-gray-600 hover:text-blue-700 font-semibold transition tracking-wide"
+                  className="text-gray-600 hover:text-yellow-700 font-semibold transition tracking-wide"
                 >
                   {lnk.label}
                 </a>
               ))}
-              <a
-                href="https://wa.me/6281299723970"
-                className="bg-gradient-to-tr from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-white rounded-xl px-5 py-2 font-bold ml-2 shadow"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Pesan WhatsApp
-              </a>
             </div>
             {/* Hamburger */}
             <button
-              className="md:hidden flex items-center px-3 py-2 rounded border border-blue-500 text-blue-700"
+              className="md:hidden flex items-center px-3 py-2 rounded border border-black-500 text-yellow-700"
               onClick={() => setNavbarOpen((s) => !s)}
               aria-label="Open menu"
             >
@@ -155,14 +146,13 @@ export default function LandingPage() {
                   d="M5 8h18M5 16h18"
                   stroke="currentColor"
                   strokeWidth="2.5"
-                  strokeLinecap="round"
                 />
               </svg>
             </button>
           </div>
         </div>
         {navbarOpen && (
-          <div className="md:hidden bg-white border-t border-gray-200 shadow">
+          <div className="md:hidden bg-white border-t border-gray-200">
             <div className="flex flex-col py-2 gap-1 px-5">
               {NAV_LINKS.map((lnk) => (
                 <a
@@ -174,15 +164,6 @@ export default function LandingPage() {
                   {lnk.label}
                 </a>
               ))}
-              <a
-                href="https://wa.me/6281299723970"
-                className="bg-green-500 hover:bg-green-600 text-white rounded-lg px-4 py-2 font-bold shadow my-2 text-center"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setNavbarOpen(false)}
-              >
-                Pesan WhatsApp
-              </a>
             </div>
           </div>
         )}
@@ -190,7 +171,7 @@ export default function LandingPage() {
 
       {/* Banner Carousel */}
       <section className="mb-8 mt-8 max-w-6xl mx-auto w-full px-2">
-        <div className="rounded-3xl shadow-2xl overflow-hidden w-full aspect-video bg-gray-100">
+        <div className="rounded-1xl overflow-hidden w-full aspect-image bg-gray-100">
           <Swiper
             modules={[Pagination, Autoplay]}
             pagination={{ clickable: true }}
@@ -204,7 +185,7 @@ export default function LandingPage() {
                 <img
                   src={img}
                   alt={`Banner ${idx + 1}`}
-                  className="w-full h-full object-cover"
+                  className="w-fill h-full object-cover"
                   loading="lazy"
                 />
               </SwiperSlide>
@@ -216,15 +197,15 @@ export default function LandingPage() {
       {/* Kategori */}
       <section className="mt-2 mb-10 max-w-5xl mx-auto px-3" id="categories">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-extrabold text-blue-900 tracking-wide">
-            Temukan Kategori Favoritmu
+          <h2 className="text-xl text-center font-extrabold text-grey-900 tracking-wide">
+            Whisky Wine And Whatever
           </h2>
           {kategoriAktif && (
             <button
-              className="flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-blue-400 text-white font-semibold rounded-full px-4 py-1 shadow hover:scale-105 hover:from-yellow-500 hover:to-blue-500 hover:shadow-lg transition-all duration-150"
+              className="flex items-center gap-2 bg-gradient-to-r from-yellow-800 to-grey-900 text-white font-semibold rounded-full px-4 py-1  hover:scale-105 hover:from-yellow-700 hover:to-grey-900 hover:shadow-lg transition-all duration-150"
               onClick={() => setKategoriAktif("")}
             >
-              <svg width="18" height="18" fill="none" viewBox="0 0 20 20">
+              <svg width="25" height="25" fill="none" viewBox="0 0 20 20">
                 <path
                   d="M10 3v14M3 10h14"
                   stroke="currentColor"
@@ -232,23 +213,23 @@ export default function LandingPage() {
                   strokeLinecap="round"
                 />
               </svg>
-              Semua Produk
+              All Product
             </button>
           )}
         </div>
         <div className="flex flex-wrap gap-3">
           {kategoriList.length === 0 ? (
             <div className="col-span-full text-gray-400">
-              Belum ada kategori.
+              not Available.
             </div>
           ) : (
             kategoriList.map((kat) => (
               <button
                 key={kat}
-                className={`flex flex-col items-center justify-center bg-white border-2 rounded-full w-20 h-20 shadow-md transition hover:shadow-lg hover:border-yellow-400
+                className={`flex flex-col items-center justify-center bg-white border-2 rounded-full w-20 h-20 shadow-md transition hover:shadow-lg hover:border-yellow-700
                   ${
                     kategoriAktif === kat
-                      ? "border-yellow-500 ring-2 ring-yellow-200 scale-110"
+                      ? "border-yellow-500 ring-2 ring-yellow-700 scale-110"
                       : "border-blue-100"
                   }
                 `}
@@ -271,7 +252,7 @@ export default function LandingPage() {
       {/* Search Bar */}
       <section className="mb-7 max-w-4xl mx-auto px-3">
         <input
-          className="w-full border-2 border-yellow-100 rounded-2xl px-5 py-3 shadow focus:border-yellow-400 focus:outline-none text-lg bg-white/90"
+          className="w-full border-2 border-grey-900 rounded-2xl px-5 py-3 focus:border-yellow-800 focus:outline-none text-lg bg-white/90"
           placeholder="Cari produk, kategori, dsb..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -280,29 +261,25 @@ export default function LandingPage() {
 
       {/* Produk */}
       <section className="max-w-6xl mx-auto px-3 py-2" id="products">
-        <h2 className="text-2xl font-bold text-blue-800 mb-5 tracking-wide">
+        <h2 className="text-2xl font-bold text-yellow-800 mb-5 tracking-wide">
           {kategoriAktif ? `Produk ${kategoriAktif}` : "Semua Produk"}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-9">
           {produkFiltered.length === 0 ? (
             <div className="col-span-full text-center text-gray-400 py-10">
-              Tidak ada produk.
+              No Products Found
             </div>
           ) : (
             produkFiltered.map((liq) => (
               <div
                 key={liq.id}
-                className="bg-white rounded-3xl shadow-2xl flex flex-col items-center p-6 relative hover:scale-105 hover:shadow-yellow-200/80 transition-all border border-yellow-100 cursor-pointer"
+                className="bg-white rounded-3xl shadow-1xl flex flex-col items-center p-6 relative hover:scale-105 hover:shadow-grey-700/80 transition-all border border-grey-700 cursor-pointer"
                 onClick={() => setSelectedProduct(liq)}
               >
-                {/* Badge kategori */}
-                <span className="absolute top-3 left-3 text-[10px] bg-blue-100 text-blue-600 font-semibold rounded-full px-3 py-1 shadow">
-                  {kategoriMap[liq.kategori] || "🍶"} {liq.kategori}
-                </span>
                 {/* Badge diskon */}
                 {liq.diskon > 0 && (
-                  <span className="absolute top-3 right-3 bg-yellow-400 text-white font-bold px-2 py-1 rounded-full text-xs shadow-lg">
-                    -{liq.diskon}%
+                  <span className="absolute top-3 right-3 bg-red-600 text-white font-bold px-2 py-1 rounded-full text-xs">
+                    Promo
                   </span>
                 )}
                 <img
@@ -318,7 +295,7 @@ export default function LandingPage() {
                   {liq.deskripsi}
                 </div>
                 <div className="mb-3 w-full flex justify-center gap-2">
-                  <span className="bg-blue-100 text-blue-600 font-semibold px-3 py-1 rounded-full text-xs shadow select-none">
+                  <span className="bg-blue-100 text-grey-700 font-semibold px-3 py-1 rounded-full text-xs shadow select-none">
                     Stok: {liq.stok}
                   </span>
                 </div>
@@ -328,7 +305,7 @@ export default function LandingPage() {
                       <span className="line-through text-red-400 mr-2 font-medium text-base">
                         Rp{Number(liq.harga).toLocaleString()}
                       </span>
-                      <span className="text-green-700 font-extrabold text-xl">
+                      <span className="text-grey-700 font-extrabold text-xl">
                         Rp
                         {Number(
                           liq.harga - (liq.harga * liq.diskon) / 100
@@ -336,7 +313,7 @@ export default function LandingPage() {
                       </span>
                     </>
                   ) : (
-                    <span className="text-blue-700">
+                    <span className="text-grey-700">
                       Rp{Number(liq.harga).toLocaleString()}
                     </span>
                   )}
@@ -365,17 +342,17 @@ export default function LandingPage() {
                     >
                       <path d="M16 11V5a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v6m8 0a4 4 0 1 1-8 0"></path>
                     </svg>
-                    {liq.sold || 0} terjual
+                    {liq.sold || 0} sold
                   </span>
                 </div>
                 <button
-                  className="bg-gradient-to-tr from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold px-4 py-2 rounded-xl w-full text-center shadow mt-auto transition"
+                  className="bg-gradient-to-tr from-yellow-700 to-yellow-800 hover:from-yellow-600 hover:to-yellow-700 text-white font-bold px-4 py-2 rounded-xl w-full text-center shadow mt-auto transition"
                   onClick={(e) => {
                     e.stopPropagation();
                     window.open(waLink(liq.nama), "_blank");
                   }}
                 >
-                  Pesan via WhatsApp
+                  Order Now
                 </button>
               </div>
             ))
@@ -390,7 +367,7 @@ export default function LandingPage() {
           onClick={() => setSelectedProduct(null)}
         >
           <div
-            className="bg-white rounded-3xl max-w-md w-full p-7 relative shadow-2xl border-2 border-yellow-200 animate-fadeIn"
+            className="bg-white rounded-1xl max-w-md w-full p-7 relative shadow-0.5xl border-1 border-yellow-200 animate-fadeIn"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Tombol close */}
@@ -411,24 +388,24 @@ export default function LandingPage() {
               {selectedProduct.nama}
             </div>
             <div className="flex justify-center gap-2 mb-2">
-              <span className="text-blue-600 font-bold bg-blue-100 px-3 py-1 rounded-full text-xs">
+              <span className="text-grey-600 font-bold bg-grey-100 px-3 py-1 rounded-full text-xs">
                 {kategoriMap[selectedProduct.kategori] || "🍶"}{" "}
                 {selectedProduct.kategori}
               </span>
               {selectedProduct.diskon > 0 && (
-                <span className="bg-yellow-400 text-white font-bold px-3 py-1 rounded-full text-xs shadow">
+                <span className="bg-yellow-600 text-white font-bold px-3 py-1 rounded-full text-xs shadow">
                   Diskon {selectedProduct.diskon}%
                 </span>
               )}
             </div>
-            <div className="text-center mb-3 text-lg font-semibold text-gray-700">
+            <div className="text-left mb-4 text-lg font-semibold text-gray-700">
               {selectedProduct.diskon > 0 ? (
                 <>
-                  <span className="line-through text-red-400 mr-2 font-medium">
+                  <span className="line-through text-red-400 mr-2 font-italic text-base">
                     Rp{Number(selectedProduct.harga).toLocaleString()}
                   </span>
-                  <span className="text-green-700 font-extrabold text-xl">
-                    Rp
+                  <span className="text-grey-800 font-bold text-s">
+                    Rp. 
                     {Number(
                       selectedProduct.harga -
                         (selectedProduct.harga * selectedProduct.diskon) / 100
@@ -436,7 +413,7 @@ export default function LandingPage() {
                   </span>
                 </>
               ) : (
-                <span className="text-blue-700 font-bold">
+                <span className="text-grey-700 font-bold">
                   Rp{Number(selectedProduct.harga).toLocaleString()}
                 </span>
               )}
@@ -445,7 +422,7 @@ export default function LandingPage() {
               {selectedProduct.deskripsi}
             </div>
             <div className="flex items-center justify-center gap-5 mb-6">
-              <span className="flex items-center text-yellow-500 font-bold">
+              <span className="flex items-center text-yellow-600 font-bold">
                 <svg
                   width="18"
                   height="18"
@@ -469,14 +446,14 @@ export default function LandingPage() {
                 >
                   <path d="M16 11V5a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v6m8 0a4 4 0 1 1-8 0"></path>
                 </svg>
-                {selectedProduct.sold || 0} terjual
+                {selectedProduct.sold || 0} Sold
               </span>
             </div>
             <a
               href={waLink(selectedProduct.nama)}
               target="_blank"
               rel="noopener noreferrer"
-              className="block bg-gradient-to-tr from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold px-6 py-3 rounded-2xl w-full text-center shadow transition"
+              className="block bg-gradient-to-tr from-yellow-700 to-yellow-900 hover:from-yellow-700 hover:to-yellow-900 text-white font-bold px-6 py-3 rounded-2xl w-full text-center transition"
             >
               Pesan via WhatsApp
             </a>
@@ -489,41 +466,59 @@ export default function LandingPage() {
         className="max-w-4xl mx-auto mt-16 mb-10 px-4 py-8 rounded-2xl bg-white/70 shadow-xl border border-yellow-100"
         id="about"
       >
-        <h2 className="text-2xl font-bold text-blue-700 mb-4 tracking-wide">
-          Tentang Kami
+        <h2 className="text-2xl font-bold text-center text-black-700 mb-4 tracking-wide">
+          About Us
         </h2>
-        <p className="text-gray-700 leading-relaxed text-lg">
-          <b>W3LIQUOR</b> adalah katalog minuman online. Semua produk dikelola
-          langsung oleh admin, update otomatis tanpa repot!
+        <p className="text-gray-700 text-center leading-relaxed text-lg">
+          <b>W3LIQUOR</b> Whisky Wine And Whatever 100% Original Liquor Store
           <br />
-          <span className="text-yellow-600 font-bold">
-            Temukan minuman favorit, cek promo diskon, dan pesan mudah lewat
-            WhatsApp!
+          <span className="text-yellow-700 text-center font-bold">
+            Find Your Favorite Liquor Here!
           </span>
         </p>
       </section>
 
       {/* Footer */}
       <footer
-        className="w-full mt-12 py-8 bg-gradient-to-r from-blue-800 to-yellow-500 text-white shadow-inner"
+        className="w-full mt-12 py-8 bg-gradient-to-r from-yellow-700 to-yellow-800 text-white shadow-inner"
         id="contact"
       >
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-5 px-5">
           <div>
             <div className="font-bold text-2xl mb-1 tracking-widest">
-              W3<span className="text-yellow-300">LIQUOR</span>
+              W3<span className="text-grey-800">LIQUOR</span>
             </div>
             <div className="text-xs">
-              © {new Date().getFullYear()} W3LIQUOR. All Rights Reserved.
+              © {new Date().getFullYear()} W3LIQUOR
               <br />
               <span className="text-[10px] text-yellow-100/80">
-                Designed with ❤️ by W3LIQUOR Team. Unauthorized duplication is a
-                violation of applicable laws.
+                W3Liquor Your One Stop Shop liquor Store
               </span>
             </div>
           </div>
           <div className="text-sm">
-            <div className="font-semibold mb-1">Kontak Admin:</div>
+            <div className="font-semibold mb-1">More Information:</div>
+            <div>
+              Pengiriman Instan/Sameday:{" "}
+              <a>
+               Gojek
+              </a>
+            </div>
+            <div>
+              Location:{" "}
+              <a>
+                Jakarta Barat
+              </a>
+            </div>
+            <div>
+              Jam Operational:{" "}
+              <a>
+                Senin - Minggu | 11:00 - 22:00
+              </a>
+            </div>
+          </div>
+          <div className="text-sm">
+            <div className="font-semibold mb-1">Contact:</div>
             <div>
               WhatsApp:{" "}
               <a
@@ -541,7 +536,7 @@ export default function LandingPage() {
                 rel="noopener noreferrer"
                 className="underline font-medium"
               >
-                drunkwliquor@gmail.com
+                wwwliquor@gmail.com
               </a>
             </div>
           </div>
@@ -555,20 +550,6 @@ export default function LandingPage() {
               aria-label="Instagram"
               title="Instagram"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24">
-                <defs>
-                  <linearGradient id="IG" x1="0.5" x2="0.5" y1="0" y2="1">
-                    <stop offset="0%" stopColor="#f9ce34" />
-                    <stop offset="45%" stopColor="#ee2a7b" />
-                    <stop offset="75%" stopColor="#6228d7" />
-                  </linearGradient>
-                </defs>
-                <rect width="24" height="24" rx="6" fill="url(#IG)" />
-                <path
-                  d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9A5.5 5.5 0 0 1 16.5 22h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2zm4.5 4.4A5.6 5.6 0 1 0 17.6 12 5.6 5.6 0 0 0 12 6.4zm0 9.1A3.5 3.5 0 1 1 15.5 12 3.5 3.5 0 0 1 12 15.5zm5.2-9.1a1.3 1.3 0 1 1-1.3-1.3 1.3 1.3 0 0 1 1.3 1.3z"
-                  fill="#fff"
-                />
-              </svg>
               <span className="hidden md:inline">Instagram</span>
             </a>
             {/* Tokopedia */}
@@ -580,36 +561,8 @@ export default function LandingPage() {
               aria-label="Tokopedia"
               title="Tokopedia"
             >
-              <svg width="24" height="24" viewBox="0 0 32 32">
-                <ellipse cx="16" cy="21" rx="11" ry="7" fill="#1faa4c" />
-                <ellipse cx="16" cy="16" rx="12" ry="9" fill="#40c24b" />
-                <ellipse cx="16" cy="17" rx="8" ry="7" fill="#fff" />
-                <ellipse cx="13.5" cy="18" rx="2.3" ry="2" fill="#323232" />
-                <ellipse cx="18.5" cy="18" rx="2.3" ry="2" fill="#323232" />
-                <ellipse
-                  cx="13.5"
-                  cy="18"
-                  rx="1"
-                  ry="1"
+              <svg width="24" height="24" viewBox="0 0 24 24">
                   fill="#fff"
-                  opacity="0.6"
-                />
-                <ellipse
-                  cx="18.5"
-                  cy="18"
-                  rx="1"
-                  ry="1"
-                  fill="#fff"
-                  opacity="0.6"
-                />
-                <rect
-                  x="10"
-                  y="12"
-                  width="12"
-                  height="4"
-                  rx="2"
-                  fill="#30a845"
-                />
               </svg>
               <span className="hidden md:inline">Tokopedia</span>
             </a>
@@ -622,20 +575,7 @@ export default function LandingPage() {
               aria-label="Blibli"
               title="Blibli"
             >
-              <svg width="22" height="22" viewBox="0 0 32 32">
-                <rect
-                  x="7"
-                  y="10"
-                  width="18"
-                  height="15"
-                  rx="3"
-                  fill="#0984e3"
-                />
-                <ellipse cx="16" cy="19" rx="5" ry="3" fill="#fff" />
-                <ellipse cx="13.5" cy="16" rx="1" ry="1" fill="#fff" />
-                <ellipse cx="18.5" cy="16" rx="1" ry="1" fill="#fff" />
-                <rect x="13" y="7" width="6" height="4" rx="2" fill="#0984e3" />
-                <polygon points="14.2,6.3 16,4 17.8,6.3" fill="#ffd700" />
+              <svg width="22" height="22" viewBox="0 0 24 24">
               </svg>
               <span className="hidden md:inline">Blibli</span>
             </a>
