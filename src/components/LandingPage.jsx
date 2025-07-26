@@ -372,7 +372,7 @@ export default function LandingPage() {
           >
             {/* Tombol close */}
             <button
-              className="absolute top-3 right-3 text-xl text-gray-400 hover:text-red-500 transition"
+              className="absolute top-5 right-5 text-xl text-gray-400 hover:text-red-600 transition"
               onClick={() => setSelectedProduct(null)}
               aria-label="Tutup"
             >
@@ -384,19 +384,14 @@ export default function LandingPage() {
               className="w-36 h-36 object-cover rounded-xl mx-auto mb-4 border shadow"
               onError={(e) => (e.target.src = "/notfound.png")}
             />
-            <div className="font-bold text-2xl text-gray-800 text-center mb-1">
+            <div className="font-bold text-2xl text-gray-800 text-left mb-1">
               {selectedProduct.nama}
             </div>
-            <div className="flex justify-center gap-2 mb-2">
+            <div className="flex justify-left gap-2 mb-2">
               <span className="text-grey-600 font-bold bg-grey-100 px-3 py-1 rounded-full text-xs">
                 {kategoriMap[selectedProduct.kategori] || "🍶"}{" "}
                 {selectedProduct.kategori}
               </span>
-              {selectedProduct.diskon > 0 && (
-                <span className="bg-yellow-600 text-white font-bold px-3 py-1 rounded-full text-xs shadow">
-                  Diskon {selectedProduct.diskon}%
-                </span>
-              )}
             </div>
             <div className="text-left mb-4 text-lg font-semibold text-gray-700">
               {selectedProduct.diskon > 0 ? (
@@ -418,10 +413,10 @@ export default function LandingPage() {
                 </span>
               )}
             </div>
-            <div className="text-sm text-gray-600 text-center mb-2">
-              {selectedProduct.deskripsi}
+            <div className="text-sm text-gray-600 text-left mb-2 whitespace-pre-line">
+              {selectedProduct.deskripsi} 
             </div>
-            <div className="flex items-center justify-center gap-5 mb-6">
+            <div className="flex items-center justify-left gap-5 mb-6">
               <span className="flex items-center text-yellow-600 font-bold">
                 <svg
                   width="18"
