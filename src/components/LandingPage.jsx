@@ -279,7 +279,7 @@ export default function LandingPage() {
                 {/* Badge diskon */}
                 {liq.diskon > 0 && (
                   <span className="absolute top-3 right-3 bg-red-600 text-white font-bold px-2 py-1 rounded-full text-xs">
-                    Promo
+                    Offer
                   </span>
                 )}
                 <img
