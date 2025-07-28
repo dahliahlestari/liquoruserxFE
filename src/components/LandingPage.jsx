@@ -2,26 +2,37 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import banner1 from "../assets/banner1.png";
 import banner2 from "../assets/banner2.png";
+import cognacImg from "../assets/cognac.png";
+import ginImg from "../assets/gin.png";  
+import rumImg from "../assets/rum.png";
+import tequilaImg from "../assets/tequila.png";
+import vodkaImg from "../assets/vodka.png";
+import whiskyImg from "../assets/whisky.png";
+import wineImg from "../assets/wine.png";
+import liqueurImg from "../assets/liqueur.png";
+import othersImg from "../assets/others.png";
+
 // Swiper
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
 import { Pagination, Autoplay } from "swiper/modules";
+import Cart from "./Cart.jsx";
 
 // API URL dari ENV
 const API_URL = import.meta.env.VITE_API_URL;
 
 // Emoji kategori
 const kategoriMap = {
-  Whisky: "🥃",
-  Vodka: "🍸",
-  Gin: "🍸",
-  Rum: "🍹",
-  Tequila: "🍋‍🟩",
-  Wine: "🍷",
-  Cognac: "🍺",
-  Liqueur: "🍶",
-  Others: "🍾",
+  Whisky: whiskyImg,
+  Vodka: vodkaImg,
+  Gin: ginImg,
+  Rum: rumImg,
+  Tequila: tequilaImg,
+  Wine: wineImg,
+  cognac: cognacImg,
+  Liqueur: liqueurImg,
+  Others: othersImg,
 };
 
 const NAV_LINKS = [
@@ -39,6 +50,9 @@ export default function LandingPage() {
   const [search, setSearch] = useState("");
   const [navbarOpen, setNavbarOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [cart, setCart] = useState([]);
+  const [showNotif, setShowNotif] = useState(false);
+  const [qtyInputs, setQtyInputs] = useState({});
 
   useEffect(() => {
     axios
@@ -60,9 +74,26 @@ export default function LandingPage() {
   );
 
   const waLink = (nama) => {
-    const msg = encodeURIComponent(`Halo, saya ingin pesan produk: ${nama}`);
+    const msg = encodeURIComponent(`Halo, saya ingin pesan produk ${nama}.`);
     return `https://wa.me/6281299723970?text=${msg}`;
   };
+
+  const addToCart = (product, qty = 1) => {
+    const jumlah = parseInt(qty) || 1;
+    setCart((prevCart) => {
+      const existing = prevCart.find((item) => item.id === product.id);
+      if (existing) {
+        return prevCart.map((item) =>
+          item.id === product.id ? { ...item, qty: item.qty + jumlah } : item
+        );
+      } else {
+        return [...prevCart, { ...product, qty: jumlah }];
+      }
+    });
+    setShowNotif(true);
+    setTimeout(() => setShowNotif(false), 2000);
+  };
+
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-tr from-yellow-50 via-blue-50 to-white font-sans">
@@ -114,15 +145,13 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex justify-between items-center h-16">
             <a href="#" className="flex items-center gap-3">
-              <img
-                src="/logo.png"
-                alt="Logo"
-                className="w-10 h-10 object-contain rounded-xl shadow"
-                onError={(e) => (e.target.style.display = "none")}
-              />
-              <span className="font-bold text-2xl text-yellow-900 tracking-widest">
-                W3<span className="text-yellow-900">LIQUOR</span>
-              </span>
+              <a href="#" className="flex items-center gap-3">
+                <img
+                  src="/log.png"
+                  alt="W3LIQUOR Logo"
+                  className="w-32 h-auto object-contain"
+                />
+              </a>
             </a>
             <div className="hidden md:flex gap-8 items-center">
               {NAV_LINKS.map((lnk) => (
@@ -135,6 +164,7 @@ export default function LandingPage() {
                 </a>
               ))}
             </div>
+
             {/* Hamburger */}
             <button
               className="md:hidden flex items-center px-3 py-2 rounded border border-black-500 text-yellow-700"
@@ -168,6 +198,9 @@ export default function LandingPage() {
           </div>
         )}
       </nav>
+      
+      {/* Cart */}
+      <Cart cart={cart} setCart={setCart} />
 
       {/* Banner Carousel */}
       <section className="mb-8 mt-8 w-full px-2 sm:px-4 lg:px-0 max-w-6xl mx-auto">
@@ -194,19 +227,18 @@ export default function LandingPage() {
         </div>
       </section>
 
-
       {/* Kategori */}
       <section className="mt-2 mb-10 max-w-5xl mx-auto px-3" id="categories">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl text-center font-extrabold text-grey-900 tracking-wide">
+          <h2 className="text-xl font-extrabold text-stone-800 tracking-wide">
             Whisky Wine And Whatever
           </h2>
           {kategoriAktif && (
             <button
-              className="flex items-center gap-2 bg-gradient-to-r from-yellow-800 to-grey-900 text-white font-semibold rounded-full px-4 py-1  hover:scale-105 hover:from-yellow-700 hover:to-grey-900 hover:shadow-lg transition-all duration-150"
+              className="flex items-center gap-2 bg-gradient-to-r from-stone-700 to-stone-800 text-white font-semibold rounded-full px-4 py-1 hover:scale-105 hover:from-Stone-500 hover:to-stone-600 transition-all duration-150"
               onClick={() => setKategoriAktif("")}
             >
-              <svg width="25" height="25" fill="none" viewBox="0 0 20 20">
+              <svg width="12" height="12" fill="none" viewBox="0 0 20 20">
                 <path
                   d="M10 3v14M3 10h14"
                   stroke="currentColor"
@@ -214,47 +246,41 @@ export default function LandingPage() {
                   strokeLinecap="round"
                 />
               </svg>
-              All Product
+              All Products
             </button>
           )}
         </div>
-        <div className="flex flex-wrap gap-3">
+
+        <div className="flex flex-wrap gap-3 justify-center">
           {kategoriList.length === 0 ? (
-            <div className="col-span-full text-gray-400">
-              not Available.
-            </div>
+            <div className="col-span-full text-gray-400">not Available.</div>
           ) : (
             kategoriList.map((kat) => (
               <button
                 key={kat}
-                className={`flex flex-col items-center justify-center bg-white border-2 rounded-full w-20 h-20 shadow-md transition hover:shadow-lg hover:border-yellow-700
-                  ${
-                    kategoriAktif === kat
-                      ? "border-yellow-500 ring-2 ring-yellow-700 scale-110"
-                      : "border-blue-100"
-                  }
+                className={`overflow-hidden rounded-xl transition transform hover:scale-105 focus:outline-none
+                  ${kategoriAktif === kat ? "ring-4 ring-yellow-600 scale-105" : ""}
                 `}
-                onClick={() =>
-                  setKategoriAktif(kat === kategoriAktif ? "" : kat)
-                }
+                onClick={() => setKategoriAktif(kat === kategoriAktif ? "" : kat)}
               >
-                <span className="text-3xl mb-1">
-                  {kategoriMap[kat] || "🍶"}
-                </span>
-                <span className="font-semibold text-gray-700 text-xs text-center">
-                  {kat}
-                </span>
+                <img
+                  src={kategoriMap[kat] || othersImg}
+                  alt={kat}
+                  className="w-24 h-24 object-cover sm:w-28 sm:h-28"
+                />
               </button>
             ))
           )}
         </div>
       </section>
 
+
+
       {/* Search Bar */}
       <section className="mb-7 max-w-4xl mx-auto px-3">
         <input
           className="w-full border-2 border-grey-900 rounded-2xl px-5 py-3 focus:border-yellow-800 focus:outline-none text-lg bg-white/90"
-          placeholder="Cari produk, kategori, dsb..."
+          placeholder=" Search products..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -262,10 +288,10 @@ export default function LandingPage() {
 
       {/* Produk */}
       <section className="max-w-6xl mx-auto px-3 py-2" id="products">
-        <h2 className="text-2xl font-bold text-yellow-800 mb-5 tracking-wide">
-          {kategoriAktif ? `Produk ${kategoriAktif}` : "Semua Produk"}
+        <h2 className="text-2xl font-bold text-stone-800 mb-5 tracking-wide">
+          {kategoriAktif ? `Produk ${kategoriAktif}` : "All Products"}
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-9">
+        <div className="grid grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
           {produkFiltered.length === 0 ? (
             <div className="col-span-full text-center text-gray-400 py-10">
               No Products Found
@@ -286,7 +312,7 @@ export default function LandingPage() {
                 <img
                   src={liq.gambar}
                   alt={liq.nama}
-                  className="w-28 h-28 object-cover rounded-xl mb-3 border shadow"
+                  className="w-55 h-55 object-cover rounded-xl mb-3 border"
                   onError={(e) => (e.target.src = "/notfound.png")}
                 />
                 <div className="font-bold text-lg text-gray-900 mb-1 text-center tracking-wide">
@@ -294,11 +320,6 @@ export default function LandingPage() {
                 </div>
                 <div className="text-gray-500 text-sm mb-1 line-clamp-2 text-center">
                   {liq.deskripsi}
-                </div>
-                <div className="mb-3 w-full flex justify-center gap-2">
-                  <span className="bg-blue-100 text-grey-700 font-semibold px-3 py-1 rounded-full text-xs shadow select-none">
-                    Stok: {liq.stok}
-                  </span>
                 </div>
                 <div className="text-xl font-extrabold mb-2 text-center w-full">
                   {liq.diskon > 0 ? (
@@ -347,13 +368,14 @@ export default function LandingPage() {
                   </span>
                 </div>
                 <button
-                  className="bg-gradient-to-tr from-yellow-700 to-yellow-800 hover:from-yellow-600 hover:to-yellow-700 text-white font-bold px-4 py-2 rounded-xl w-full text-center shadow mt-auto transition"
+                  className="bg-gradient-to-tr from-stone-700 to-stone-800 hover:from-zinc-800 hover:to-zinc-700 text-white font-bold px-4 py-2 rounded-xl w-full text-center shadow mt-auto transition"
                   onClick={(e) => {
                     e.stopPropagation();
-                    window.open(waLink(liq.nama), "_blank");
+                    addToCart(liq, qtyInputs[liq.id]);
+                    setQtyInputs((prev) => ({ ...prev, [liq.id]: 1 }));
                   }}
                 >
-                  Order Now
+                  Add to Cart
                 </button>
               </div>
             ))
@@ -390,8 +412,6 @@ export default function LandingPage() {
             </div>
             <div className="flex justify-left gap-2 mb-2">
               <span className="text-grey-600 font-bold bg-grey-100 px-3 py-1 rounded-full text-xs">
-                {kategoriMap[selectedProduct.kategori] || "🍶"}{" "}
-                {selectedProduct.kategori}
               </span>
             </div>
             <div className="text-left mb-4 text-lg font-semibold text-gray-700">
@@ -449,9 +469,9 @@ export default function LandingPage() {
               href={waLink(selectedProduct.nama)}
               target="_blank"
               rel="noopener noreferrer"
-              className="block bg-gradient-to-tr from-yellow-700 to-yellow-900 hover:from-yellow-700 hover:to-yellow-900 text-white font-bold px-6 py-3 rounded-2xl w-full text-center transition"
+              className="block bg-gradient-to-tr from-stone-700 to-stone-900 hover:from-stone-800 hover:to-stone-700 text-white font-bold px-6 py-3 rounded-2xl w-full text-center transition"
             >
-              Pesan via WhatsApp
+              Order Now
             </a>
           </div>
         </div>
@@ -459,14 +479,16 @@ export default function LandingPage() {
 
       {/* About Section */}
       <section
-        className="max-w-4xl mx-auto mt-16 mb-10 px-4 py-8 rounded-2xl bg-white/70 shadow-xl border border-yellow-100"
+        className="max-w-4xl mx-auto mt-16 mb-10 px-4 py-8 rounded-2xl bg-white/70 shadow-xl border border-stone-100"
         id="about"
       >
         <h2 className="text-2xl font-bold text-center text-black-700 mb-4 tracking-wide">
-          About Us
+          W3liquor
         </h2>
         <p className="text-gray-700 text-center leading-relaxed text-lg">
-          <b>W3LIQUOR</b> Whisky Wine And Whatever 100% Original Liquor Store
+           Whisky Wine And Whatever 100% Original Liquor Store
+          <br />
+          <b>Get more Special offer! chat us now</b>
           <br />
           <span className="text-yellow-700 text-center font-bold">
             Find Your Favorite Liquor Here!
@@ -476,7 +498,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer
-        className="w-full mt-12 py-8 bg-gradient-to-r from-yellow-700 to-yellow-800 text-white shadow-inner"
+        className="w-full mt-12 py-8 bg-gradient-to-r from-stone-800 to-stone-700 text-white shadow-inner"
         id="contact"
       >
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-5 px-5">
