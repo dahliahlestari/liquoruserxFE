@@ -19,7 +19,7 @@ const kategoriMap = {
   Rum: "🍹",
   Tequila: "🍋‍🟩",
   Wine: "🍷",
-  Beer: "🍺",
+  Cognac: "🍺",
   Liqueur: "🍶",
   Others: "🍾",
 };
