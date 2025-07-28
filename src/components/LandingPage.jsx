@@ -4,12 +4,12 @@ import banner1 from "../assets/banner1.png";
 import banner2 from "../assets/banner2.png";
 import cognacImg from "../assets/cognac.png";
 import ginImg from "../assets/Gin.png";  
-import rumImg from "../assets/Rum.png";
+import rumImg from "../assets/rum.png";
 import tequilaImg from "../assets/tequila.png";
-import vodkaImg from "../assets/Vodka.png";
+import vodkaImg from "../assets/vodka.png";
 import whiskyImg from "../assets/whisky.png";
 import wineImg from "../assets/wine.png";
-import liqueurImg from "../assets/Liqueur.png";
+import liqueurImg from "../assets/liqueur.png";
 import othersImg from "../assets/others.png";
 
 // Swiper
@@ -479,7 +479,7 @@ export default function LandingPage() {
 
       {/* About Section */}
       <section
-        className="max-w-4xl mx-auto mt-16 mb-10 px-4 py-8 rounded-2xl bg-white/70 shadow-xl border border-stone-100"
+        className="max-w-4xl mx-auto mt-16 mb-10 px-6 py-8 rounded-2xl bg-white/70 shadow-xl border border-stone-100"
         id="about"
       >
         <h2 className="text-2xl font-bold text-center text-black-700 mb-4 tracking-wide">
