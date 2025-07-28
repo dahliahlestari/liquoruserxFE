@@ -170,8 +170,8 @@ export default function LandingPage() {
       </nav>
 
       {/* Banner Carousel */}
-      <section className="mb-8 mt-8 max-w-6xl mx-auto w-full px-2">
-        <div className="rounded-1xl overflow-hidden w-full aspect-image bg-gray-100">
+      <section className="mb-8 mt-8 w-full px-2 sm:px-4 lg:px-0 max-w-6xl mx-auto">
+        <div className="rounded-xl overflow-hidden w-full bg-gray-100 relative" style={{ aspectRatio: "16/9" }}>
           <Swiper
             modules={[Pagination, Autoplay]}
             pagination={{ clickable: true }}
@@ -185,7 +185,7 @@ export default function LandingPage() {
                 <img
                   src={img}
                   alt={`Banner ${idx + 1}`}
-                  className="w-fill h-full object-cover"
+                  className="w-full h-full object-cover"
                   loading="lazy"
                 />
               </SwiperSlide>
@@ -193,6 +193,7 @@ export default function LandingPage() {
           </Swiper>
         </div>
       </section>
+
 
       {/* Kategori */}
       <section className="mt-2 mb-10 max-w-5xl mx-auto px-3" id="categories">
