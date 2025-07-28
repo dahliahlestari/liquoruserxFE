@@ -3,13 +3,13 @@ import axios from "axios";
 import banner1 from "../assets/banner1.png";
 import banner2 from "../assets/banner2.png";
 import cognacImg from "../assets/cognac.png";
-import ginImg from "../assets/Gin.png";  
-import rumImg from "../assets/Rum.png";
-import tequilaImg from "../assets/Tequila.png";
-import vodkaImg from "../assets/Vodka.png";
+import ginImg from "../assets/gin.png";  
+import rumImg from "../assets/rum.png";
+import tequilaImg from "../assets/tequila.png";
+import vodkaImg from "../assets/vodka.png";
 import whiskyImg from "../assets/whisky.png";
 import wineImg from "../assets/wine.png";
-import liqueurImg from "../assets/Liqueur.png";
+import liqueurImg from "../assets/liqueur.png";
 import othersImg from "../assets/others.png";
 
 // Swiper
@@ -51,7 +51,7 @@ export default function LandingPage() {
   const [navbarOpen, setNavbarOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [cart, setCart] = useState([]);
-  const [showNotif, setShowNotif] = useState(false);
+  const [setShowNotif] = useState(false);
   const [qtyInputs, setQtyInputs] = useState({});
 
   useEffect(() => {

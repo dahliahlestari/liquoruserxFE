@@ -19,7 +19,7 @@ export default function Cart({ cart, setCart }) {
     if (stored) {
       setCart(JSON.parse(stored));
     }
-  }, []);
+  }, );
 
   const handleRemove = (id) => {
     setCart((prev) => prev.filter((item) => item.id !== id));
