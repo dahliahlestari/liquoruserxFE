@@ -288,10 +288,11 @@ export default function LandingPage() {
 
       {/* Produk */}
       <section className="max-w-6xl mx-auto px-3 py-2" id="products">
-        <h2 className="text-2xl font-bold text-stone-800 mb-5 tracking-wide">
+        <h2 className="text-2xl font-bold text-stone-800 mb-5 tracking-wide text-center sm:text-left">
           {kategoriAktif ? `Produk ${kategoriAktif}` : "All Products"}
         </h2>
-        <div className="grid grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {produkFiltered.length === 0 ? (
             <div className="col-span-full text-center text-gray-400 py-10">
               No Products Found
@@ -300,75 +301,56 @@ export default function LandingPage() {
             produkFiltered.map((liq) => (
               <div
                 key={liq.id}
-                className="bg-white rounded-3xl shadow-1xl flex flex-col items-center p-6 relative hover:scale-105 hover:shadow-grey-700/80 transition-all border border-grey-700 cursor-pointer"
+                className="bg-white rounded-2xl shadow-md flex flex-col items-center p-4 relative hover:scale-[1.02] hover:shadow-lg transition-all border border-gray-200 cursor-pointer"
                 onClick={() => setSelectedProduct(liq)}
               >
-                {/* Badge diskon */}
                 {liq.diskon > 0 && (
-                  <span className="absolute top-3 right-3 bg-red-600 text-white font-bold px-2 py-1 rounded-full text-xs">
+                  <span className="absolute top-2 right-2 bg-red-600 text-white font-bold px-2 py-0.5 rounded-full text-xs">
                     Special Offer
                   </span>
                 )}
+
                 <img
                   src={liq.gambar}
                   alt={liq.nama}
-                  className="w-55 h-55 object-cover rounded-xl mb-3 border"
+                  className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-xl mb-2 border"
                   onError={(e) => (e.target.src = "/notfound.png")}
                 />
-                <div className="font-bold text-lg text-gray-900 mb-1 text-center tracking-wide">
+
+                <div className="font-semibold text-sm sm:text-base text-gray-900 text-center mb-1 line-clamp-1">
                   {liq.nama}
                 </div>
-                <div className="text-gray-500 text-sm mb-1 line-clamp-2 text-center">
+
+                <div className="text-gray-500 text-xs sm:text-sm text-center mb-1 line-clamp-2">
                   {liq.deskripsi}
                 </div>
-                <div className="text-xl font-extrabold mb-2 text-center w-full">
+
+                <div className="text-base sm:text-lg font-extrabold mb-2 text-center">
                   {liq.diskon > 0 ? (
                     <>
-                      <span className="line-through text-red-400 mr-2 font-medium text-base">
+                      <span className="line-through text-red-400 mr-1 font-medium text-sm">
                         Rp{Number(liq.harga).toLocaleString()}
                       </span>
-                      <span className="text-grey-700 font-extrabold text-xl">
-                        Rp
-                        {Number(
-                          liq.harga - (liq.harga * liq.diskon) / 100
-                        ).toLocaleString()}
+                      <span className="text-stone-700 font-bold">
+                        Rp{Number(liq.harga - (liq.harga * liq.diskon) / 100).toLocaleString()}
                       </span>
                     </>
                   ) : (
-                    <span className="text-grey-700">
+                    <span className="text-stone-700">
                       Rp{Number(liq.harga).toLocaleString()}
                     </span>
                   )}
                 </div>
-                <div className="flex items-center justify-center gap-3 mb-4 w-full">
-                  {/* Rating & Sold */}
-                  <span className="flex items-center text-yellow-500 font-bold text-base">
-                    <svg
-                      width="18"
-                      height="18"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path d="M10 2l2.39 4.86 5.36.78-3.87 3.77.92 5.36L10 14.27l-4.8 2.5.92-5.36-3.87-3.77 5.36-.78L10 2z" />
-                    </svg>
-                    {Number(liq.rating || 5).toFixed(1)}
+
+                <div className="flex items-center justify-center gap-2 text-xs text-gray-500 mb-3">
+                  <span className="flex items-center text-yellow-500 font-bold">
+                    ⭐ {Number(liq.rating || 5).toFixed(1)}
                   </span>
-                  <span className="flex items-center text-gray-500 font-medium text-sm">
-                    <svg
-                      width="16"
-                      height="16"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.7"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M16 11V5a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v6m8 0a4 4 0 1 1-8 0"></path>
-                    </svg>
-                    {liq.sold || 0} sold
-                  </span>
+                  <span>{liq.sold || 0} sold</span>
                 </div>
+
                 <button
-                  className="bg-gradient-to-tr from-stone-700 to-stone-800 hover:from-zinc-800 hover:to-zinc-700 text-white font-bold px-4 py-2 rounded-xl w-full text-center shadow mt-auto transition"
+                  className="bg-gradient-to-tr from-stone-700 to-stone-800 hover:from-zinc-800 hover:to-zinc-700 text-white font-bold text-sm px-3 py-2 rounded-xl w-full shadow transition"
                   onClick={(e) => {
                     e.stopPropagation();
                     addToCart(liq, qtyInputs[liq.id]);
@@ -382,6 +364,7 @@ export default function LandingPage() {
           )}
         </div>
       </section>
+
 
       {/* MODAL PRODUK DETAIL */}
       {selectedProduct && (
