@@ -4,12 +4,12 @@ import banner1 from "../assets/banner1.png";
 import banner2 from "../assets/banner2.png";
 import cognacImg from "../assets/cognac.png";
 import ginImg from "../assets/Gin.png";  
-import rumImg from "../assets/rum.png";
-import tequilaImg from "../assets/tequila.png";
-import vodkaImg from "../assets/vodka.png";
+import rumImg from "../assets/Rum.png";
+import tequilaImg from "../assets/Tequila.png";
+import vodkaImg from "../assets/Vodka.png";
 import whiskyImg from "../assets/whisky.png";
 import wineImg from "../assets/wine.png";
-import liqueurImg from "../assets/liqueur.png";
+import liqueurImg from "../assets/Liqueur.png";
 import othersImg from "../assets/others.png";
 
 // Swiper
