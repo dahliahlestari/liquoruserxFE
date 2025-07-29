@@ -324,26 +324,26 @@ export default function LandingPage() {
                   onError={(e) => (e.target.src = "/notfound.png")}
                 />
 
-                <div className="flex font-semibold text-sm sm:text-base text-gray-900 text-center mb-1 line-clamp-1">
+                <div className="font-semibold text-sm sm:text-base text-gray-900 text-center mb-1 line-clamp-1">
                   {liq.nama}
                 </div>
 
-                <div className="flex text-gray-500 text-xs sm:text-sm text-center mb-1 line-clamp-2">
+                <div className="text-gray-500 text-xs sm:text-sm text-center mb-1 line-clamp-2">
                   {liq.deskripsi}
                 </div>
 
-                <div className="flex text-base sm:text-lg font-extrabold mb-2 text-center">
+                <div className="text-sm text-base sm:text-lg font-extrabold mb-2 text-center">
                   {liq.diskon > 0 ? (
                     <>
-                      <span className="flex line-through text-red-400 mr-1 font-medium text-sm">
+                      <span className="text-sm line-through text-red-400 mr-1 font-medium text-sm">
                         Rp{Number(liq.harga).toLocaleString()}
                       </span>
-                      <span className="flex text-stone-700 font-bold">
+                      <span className="text-sm text-stone-700 font-bold">
                         Rp{Number(liq.harga - (liq.harga * liq.diskon) / 100).toLocaleString()}
                       </span>
                     </>
                   ) : (
-                    <span className="flex text-liquordark font-bold">
+                    <span className="text-sm text-liquordark font-bold">
                       Rp{Number(liq.harga).toLocaleString()}
                     </span>
                   )}
