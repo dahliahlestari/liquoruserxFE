@@ -149,7 +149,7 @@ export default function LandingPage() {
                 <img
                   src="/log.png"
                   alt="W3LIQUOR Logo"
-                  className="w-20 h-auto object-contain"
+                  className="w-32 h-auto object-contain"
                 />
               </a>
             </a>
@@ -292,13 +292,13 @@ export default function LandingPage() {
           {kategoriAktif ? `Produk ${kategoriAktif}` : "All Products"}
         </h2>
 
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {produkFiltered.length === 0 ? (
             <div className="col-span-full text-center text-gray-400 py-10">
               No Products Found
             </div>
           ) : (
-            produkFiltered.map((liq) => (g
+            produkFiltered.map((liq) => (
               <div
                 key={liq.id}
                 className="bg-white rounded-2xl shadow-md flex flex-col items-center p-4 relative hover:scale-[1.02] hover:shadow-lg transition-all border border-gray-200 cursor-pointer"
@@ -315,8 +315,6 @@ export default function LandingPage() {
                   </span>
                 )}
 
-
-
                 <img
                   src={liq.gambar}
                   alt={liq.nama}
@@ -328,22 +326,22 @@ export default function LandingPage() {
                   {liq.nama}
                 </div>
 
-               <div className="hidden sm:block text-gray-500 text-xs text-center mb-1 line-clamp-2">
+                <div className="hidden sm:block text-gray-500 text-xs text-center mb-1 line-clamp-2">
                   {liq.deskripsi}
                 </div>
 
-                <div className="text-sm text-base sm:text-lg font-extrabold mb-2 text-center">
+                <div className="text-base sm:text-lg font-extrabold mb-2 text-center">
                   {liq.diskon > 0 ? (
                     <>
-                      <span className="text-sm line-through text-red-400 mr-1 font-medium text-sm">
+                      <span className="line-through text-red-400 mr-1 font-medium text-sm">
                         Rp{Number(liq.harga).toLocaleString()}
                       </span>
-                      <span className="text-sm text-stone-700 font-bold">
+                      <span className="text-stone-700 font-bold">
                         Rp{Number(liq.harga - (liq.harga * liq.diskon) / 100).toLocaleString()}
                       </span>
                     </>
                   ) : (
-                    <span className="text-sm text-liquordark font-bold">
+                    <span className="text-liquordark font-bold">
                       Rp{Number(liq.harga).toLocaleString()}
                     </span>
                   )}
