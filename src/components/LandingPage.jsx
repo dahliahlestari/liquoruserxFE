@@ -158,7 +158,7 @@ export default function LandingPage() {
                 <a
                   key={lnk.label}
                   href={lnk.href}
-                  className="text-gray-600 hover:text-yellow-700 font-semibold transition tracking-wide"
+                  className="text-gray-600 hover:text-liquorgold font-semibold transition tracking-wide"
                 >
                   {lnk.label}
                 </a>
@@ -259,14 +259,14 @@ export default function LandingPage() {
               <button
                 key={kat}
                 className={`overflow-hidden rounded-xl transition transform hover:scale-105 focus:outline-none
-                  ${kategoriAktif === kat ? "ring-4 ring-yellow-600 scale-105" : ""}
+                  ${kategoriAktif === kat ? " ring-liquorgold scale-115" : ""}
                 `}
                 onClick={() => setKategoriAktif(kat === kategoriAktif ? "" : kat)}
               >
                 <img
                   src={kategoriMap[kat] || othersImg}
                   alt={kat}
-                  className="w-24 h-24 object-cover sm:w-28 sm:h-28"
+                  className="w-24 h-24 object-cover sm:w-28 sm:h-28 rounded-full"
                 />
               </button>
             ))
@@ -309,11 +309,18 @@ export default function LandingPage() {
                     Special Offer
                   </span>
                 )}
+                {liq.stok === 0 && (
+                  <span className="absolute top-2 left-2 bg-gray-700 text-white font-bold px-2 py-0.5 rounded-full text-xs shadow">
+                    Sold Out
+                  </span>
+                )}
+
+
 
                 <img
                   src={liq.gambar}
                   alt={liq.nama}
-                  className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-xl mb-2 border"
+                  className="w-50 h-50 sm:w-50 sm:h-50 object-cover rounded-xl mb-2 border"
                   onError={(e) => (e.target.src = "/notfound.png")}
                 />
 
@@ -336,7 +343,7 @@ export default function LandingPage() {
                       </span>
                     </>
                   ) : (
-                    <span className="text-stone-700">
+                    <span className="text-liquordark font-bold">
                       Rp{Number(liq.harga).toLocaleString()}
                     </span>
                   )}
@@ -350,14 +357,16 @@ export default function LandingPage() {
                 </div>
 
                 <button
-                  className="bg-gradient-to-tr from-stone-700 to-stone-800 hover:from-zinc-800 hover:to-zinc-700 text-white font-bold text-sm px-3 py-2 rounded-xl w-full shadow transition"
                   onClick={(e) => {
                     e.stopPropagation();
+                    if (liq.stok === 0) return;
                     addToCart(liq, qtyInputs[liq.id]);
                     setQtyInputs((prev) => ({ ...prev, [liq.id]: 1 }));
                   }}
+                  className="relative bg-gradient-to-tr from-liquorgoldlight to-liquorgold text-white font-bold px-3 py-2 rounded-xl w-full shadow transition hover:from-liquorgold hover:to-liquordarkgold"
+                  disabled={liq.stok === 0}
                 >
-                  Add to Cart
+                  <span>Add to Cart</span>
                 </button>
               </div>
             ))
@@ -452,7 +461,7 @@ export default function LandingPage() {
               href={waLink(selectedProduct.nama)}
               target="_blank"
               rel="noopener noreferrer"
-              className="block bg-gradient-to-tr from-stone-700 to-stone-900 hover:from-stone-800 hover:to-stone-700 text-white font-bold px-6 py-3 rounded-2xl w-full text-center transition"
+              className="block bg-gradient-to-tr from-liquordarkgold to-liquorgold hover:from-liquorgold hover:to-liquorgoldlight text-white font-bold px-6 py-3 rounded-2xl w-full text-center transition"
             >
               Order Now
             </a>
@@ -481,7 +490,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer
-        className="w-full mt-12 py-8 bg-gradient-to-r from-stone-800 to-stone-700 text-white shadow-inner"
+        className="w-full mt-12 py-8 bg-gradient-to-r from-liquorgoldlight to-liquordarkgold text-white shadow-inner"
         id="contact"
       >
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-5 px-5">
