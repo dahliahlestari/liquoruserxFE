@@ -149,7 +149,7 @@ export default function LandingPage() {
                 <img
                   src="/log.png"
                   alt="W3LIQUOR Logo"
-                  className="w-32 h-auto object-contain"
+                  className="w-20 h-auto object-contain"
                 />
               </a>
             </a>
