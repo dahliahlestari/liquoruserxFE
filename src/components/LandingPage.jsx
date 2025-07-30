@@ -326,7 +326,7 @@ export default function LandingPage() {
                   {liq.nama}
                 </div>
 
-                <div className="hidden sm:block text-gray-500 text-xs text-center mb-1 line-clamp-2">
+                <div className="text-gray-500 text-xs sm:text-sm text-center mb-1 line-clamp-2">
                   {liq.deskripsi}
                 </div>
 
