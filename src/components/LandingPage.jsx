@@ -491,7 +491,7 @@ export default function LandingPage() {
         </h2>
         <div className="w-full max-w-7xl mx-auto rounded-2xl overflow-hidden">
           <iframe
-            src="//lightwidget.com/widgets/365651b1f6b951669655c5fec89b13f3.html"
+            src="//lightwidget.com/widgets/efbcf791d44c54bc8116ed108634ced3.html"
             scrolling="no"
             allowTransparency="true"
             className="lightwidget-widget w-full"
