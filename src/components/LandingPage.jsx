@@ -261,22 +261,22 @@ export default function LandingPage() {
           )}
         </div>
 
-        <div className="flex flex-wrap gap-3 justify-center">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4 justify-center">
           {kategoriList.length === 0 ? (
-            <div className="col-span-full text-gray-400">not Available.</div>
+            <div className="col-span-full text-gray-400 text-center">not Available.</div>
           ) : (
             kategoriList.map((kat) => (
               <button
                 key={kat}
-                className={`overflow-hidden rounded-xl transition transform hover:scale-105 focus:outline-none
-                  ${kategoriAktif === kat ? " ring-liquorgold scale-115" : ""}
-                `}
+                className={`overflow-hidden rounded-xl transition transform hover:scale-105 focus:outline-none ${
+                  kategoriAktif === kat ? "ring-liquorgold scale-115" : ""
+                }`}
                 onClick={() => setKategoriAktif(kat === kategoriAktif ? "" : kat)}
               >
                 <img
                   src={kategoriMap[kat] || othersImg}
                   alt={kat}
-                  className="w-15 h-15 object-cover sm:w-20 sm:h-20 rounded-full"
+                  className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-full mx-auto"
                 />
               </button>
             ))
@@ -531,7 +531,7 @@ export default function LandingPage() {
                 <img
                   src={src}
                   alt={`Instagram ${idx + 1}`}
-                  className="w-full h-[200px] sm:h-[450px] md:h-[400px] object-cover object-center rounded-md hover:scale-105 transition duration-200"
+                  className="w-full h-[200px] sm:h-[500px] md:h-[400px] object-cover object-center rounded-md hover:scale-105 transition duration-200"
                 />
               </a>
             </SwiperSlide>
