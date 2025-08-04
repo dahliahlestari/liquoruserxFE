@@ -235,7 +235,7 @@ export default function LandingPage() {
           </h2>
           {kategoriAktif && (
             <button
-              className="flex items-center gap-2 bg-gradient-to-r from-stone-700 to-stone-800 text-white font-semibold rounded-full px-4 py-1 hover:scale-105 hover:from-Stone-500 hover:to-stone-600 transition-all duration-150"
+              className="flex items-center gap-2 bg-gradient-to-r from-stone-700 to-stone-800 text-white font-semibold rounded-full px-1 py-1 hover:scale-105 hover:from-Stone-500 hover:to-stone-600 transition-all duration-150"
               onClick={() => setKategoriAktif("")}
             >
               <svg width="12" height="12" fill="none" viewBox="0 0 20 20">
@@ -266,7 +266,7 @@ export default function LandingPage() {
                 <img
                   src={kategoriMap[kat] || othersImg}
                   alt={kat}
-                  className="w-24 h-24 object-cover sm:w-28 sm:h-28 rounded-full"
+                  className="w-15 h-15 object-cover sm:w-20 sm:h-20 rounded-full"
                 />
               </button>
             ))
@@ -330,18 +330,18 @@ export default function LandingPage() {
                   {liq.deskripsi}
                 </div>
 
-                <div className="text-base sm:text-lg font-extrabold mb-2 text-center">
+               <div className="text-center mb-2">
                   {liq.diskon > 0 ? (
-                    <>
-                      <span className="line-through text-red-400 mr-1 font-medium text-sm">
+                    <div className="flex flex-col items-center leading-snug">
+                      <span className="line-through text-red-400 text-sm font-medium">
                         Rp{Number(liq.harga).toLocaleString()}
                       </span>
-                      <span className="text-stone-700 font-bold">
+                      <span className="text-stone-800 font-extrabold text-lg">
                         Rp{Number(liq.harga - (liq.harga * liq.diskon) / 100).toLocaleString()}
                       </span>
-                    </>
+                    </div>
                   ) : (
-                    <span className="text-liquordark font-bold">
+                    <span className="text-liquordark font-bold text-lg">
                       Rp{Number(liq.harga).toLocaleString()}
                     </span>
                   )}
@@ -404,26 +404,24 @@ export default function LandingPage() {
               <span className="text-grey-600 font-bold bg-grey-100 px-3 py-1 rounded-full text-xs">
               </span>
             </div>
-            <div className="text-left mb-4 text-lg font-semibold text-gray-700">
-              {selectedProduct.diskon > 0 ? (
-                <>
-                  <span className="line-through text-red-400 mr-2 font-italic text-base">
+            <div className="text-left mb-4">
+                {selectedProduct.diskon > 0 ? (
+                  <div className="flex flex-col">
+                    <span className="line-through text-red-400 text-base font-medium mb-1">
+                      Rp{Number(selectedProduct.harga).toLocaleString()}
+                    </span>
+                    <span className="text-gray-800 font-bold text-xl">
+                      Rp{Number(
+                        selectedProduct.harga - (selectedProduct.harga * selectedProduct.diskon) / 100
+                      ).toLocaleString()}
+                    </span>
+                  </div>
+                ) : (
+                  <span className="text-gray-800 font-bold text-xl">
                     Rp{Number(selectedProduct.harga).toLocaleString()}
                   </span>
-                  <span className="text-grey-800 font-bold text-s">
-                    Rp. 
-                    {Number(
-                      selectedProduct.harga -
-                        (selectedProduct.harga * selectedProduct.diskon) / 100
-                    ).toLocaleString()}
-                  </span>
-                </>
-              ) : (
-                <span className="text-grey-700 font-bold">
-                  Rp{Number(selectedProduct.harga).toLocaleString()}
-                </span>
-              )}
-            </div>
+                )}
+              </div>
             <div className="text-sm text-gray-600 text-left mb-2 whitespace-pre-line">
               {selectedProduct.deskripsi} 
             </div>
@@ -485,6 +483,24 @@ export default function LandingPage() {
           </span>
         </p>
       </section>
+
+      {/* Instagram Feed */}
+      <section className="w-full px-4 sm:px-10 py-16 bg-white" id="instagram">
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
+          Follow Us on Instagram
+        </h2>
+        <div className="w-full max-w-7xl mx-auto rounded-2xl overflow-hidden">
+          <iframe
+            src="//lightwidget.com/widgets/365651b1f6b951669655c5fec89b13f3.html"
+            scrolling="no"
+            allowTransparency="true"
+            className="lightwidget-widget w-full"
+            style={{ height: "1000px", border: "none", overflow: "hidden" }}
+          ></iframe>
+        </div>
+      </section>
+
+
 
       {/* Footer */}
       <footer
@@ -552,7 +568,7 @@ export default function LandingPage() {
             {/* Instagram */}
             <a
               href="https://www.instagram.com/w3liquor"
-              className="hover:text-yellow-300 flex items-center gap-1"
+              className="hover:text-liquorgold flex items-center gap-1"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Instagram"
@@ -563,7 +579,7 @@ export default function LandingPage() {
             {/* Tokopedia */}
             <a
               href="https://tokopedia.link/aiKJUeadaVb"
-              className="hover:text-yellow-300 flex items-center gap-1"
+              className="hover:text-liquorgold flex items-center gap-1"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Tokopedia"
@@ -577,13 +593,13 @@ export default function LandingPage() {
             {/* Blibli */}
             <a
               href="https://blibli.onelink.me/GNtk/ys8uoloo"
-              className="hover:text-yellow-300 flex items-center gap-1"
+              className="hover:text-liquorgold flex items-center gap-1"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Blibli"
               title="Blibli"
             >
-              <svg width="22" height="22" viewBox="0 0 24 24">
+              <svg width="20" height="20" viewBox="0 0 24 24">
               </svg>
               <span className="hidden md:inline">Blibli</span>
             </a>
