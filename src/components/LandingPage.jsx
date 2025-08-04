@@ -11,6 +11,16 @@ import whiskyImg from "../assets/whisky.png";
 import wineImg from "../assets/wine.png";
 import liqueurImg from "../assets/Liqueur.png";
 import othersImg from "../assets/others.png";
+import igpost1 from "../assets/ig1.jpg"
+import igpost2 from "../assets/ig2.jpg"
+import igpost3 from "../assets/ig3.jpg"
+import igpost4 from "../assets/ig4.jpg"
+import igpost5 from "../assets/ig5.jpg"
+import igpost6 from "../assets/ig6.jpg"
+import igpost7 from "../assets/ig7.jpg"
+import igpost8 from "../assets/ig8.png"
+import tokopedia from "../assets/tokopedia.png"
+import blibli from "../assets/blibli.png"
 
 // Swiper
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -467,7 +477,7 @@ export default function LandingPage() {
 
       {/* About Section */}
       <section
-        className="max-w-4xl mx-auto mt-16 mb-10 px-6 py-8 rounded-2xl bg-white/70 shadow-xl border border-stone-100"
+        className="max-w-7xl mx-auto mt-16 mb-10 px-6 py-8 rounded-2xl bg-white/70 shadow-xl border border-stone-100"
         id="about"
       >
         <h2 className="text-2xl font-bold text-center text-black-700 mb-4 tracking-wide">
@@ -475,6 +485,7 @@ export default function LandingPage() {
         </h2>
         <p className="text-gray-700 text-center leading-relaxed text-lg">
            Whisky Wine And Whatever 100% Original Liquor Store
+           <br />At W3liquor, we’re passionate about delivering authentic, premium-quality spirits from around the world. Whether you’re a whisky aficionado, a wine enthusiast, or simply exploring the vibrant universe of liquors, our store is your trusted destination for 100% original, meticulously sourced bottles.<br />
           <br />
           <b>Get more Special offer! chat us now</b>
           <br />
@@ -484,23 +495,90 @@ export default function LandingPage() {
         </p>
       </section>
 
-      {/* Instagram Feed */}
-      <section className="w-full px-4 sm:px-10 py-16 bg-white" id="instagram">
+      {/* Manual Instagram Section */}
+      <section className="w-full px-2 sm:px-3 py-6 bg-white" id="instagram">
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
           Follow Us on Instagram
         </h2>
-        <div className="w-full max-w-7xl mx-auto rounded-2xl overflow-hidden">
-          <iframe
-            src="//lightwidget.com/widgets/efbcf791d44c54bc8116ed108634ced3.html"
-            scrolling="no"
-            allowTransparency="true"
-            className="lightwidget-widget w-full"
-            style={{ height: "1000px", border: "none", overflow: "hidden" }}
-          ></iframe>
-        </div>
+        <Swiper
+          modules={[Autoplay]}
+          slidesPerView={1}
+          spaceBetween={10}
+          breakpoints={{
+            640: { slidesPerView: 2 },
+            1024: { slidesPerView: 3 },
+          }}
+          loop={true}
+          autoplay={{ delay: 1500, disableOnInteraction: false }}
+          className="w-full max-w-5xl mx-auto"
+        >
+          {[
+            igpost1,
+            igpost2,
+            igpost3,
+            igpost4,
+            igpost5,
+            igpost6,
+            igpost7,
+            igpost8
+          ].map((src, idx) => (
+            <SwiperSlide key={idx}>
+              <a
+                href="https://www.instagram.com/w3liquor/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img
+                  src={src}
+                  alt={`Instagram ${idx + 1}`}
+                  className="w-full h-[200px] sm:h-[450px] md:h-[400px] object-cover object-center rounded-md hover:scale-105 transition duration-200"
+                />
+              </a>
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </section>
 
+      {/* Tokopedia & Blibli Store Section */}
+      <section className="w-full px-4 sm:px-10 py-16 bg-white" id="official-stores">
+        <h2 className="text-3xl font-bold text-center text-stone-800 mb-10">
+          Shop at Our Official Stores!
+        </h2>
 
+        <div className="flex flex-wrap justify-center items-center gap-6 max-w-2xl mx-auto">
+          {/* Tokopedia Button */}
+          <a
+            href="https://www.tokopedia.com/weliquor"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-5 rounded-xl shadow-md transition duration-300 w-[260px] justify-center"
+            title="Kunjungi toko Tokopedia W3LIQUOR"
+          >
+            <img
+              src={tokopedia}
+              alt="Tokopedia weliquor/w3liquor"
+              className="w-7 h-7"
+            />
+            Tokopedia Store
+          </a>
+
+          {/* Blibli Button */}
+          <a
+            href="https://www.blibli.com/merchant/w3liquor/W3R-70000?pickupPointCode=PP-3542947"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 bg-blue-700 hover:bg-blue-800 text-white font-semibold py-3 px-5 rounded-xl shadow-md transition duration-300 w-[260px] justify-center"
+            title="Kunjungi toko Blibli W3LIQUOR"
+          >
+            <img
+              src={blibli}
+              alt="Blibli w3liquor"
+              className="w-7 h-7"
+            />
+            Blibli Store
+          </a>
+        </div>
+      </section>
 
       {/* Footer */}
       <footer
