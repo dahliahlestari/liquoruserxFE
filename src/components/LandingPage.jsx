@@ -24,10 +24,19 @@ import blibli from "../assets/blibli.png"
 
 // Swiper
 import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import { Pagination, Autoplay } from "swiper/modules";
 import Cart from "./Cart.jsx";
+
+function chunkArray(arr, size) {
+  const result = [];
+  for (let i = 0; i < arr.length; i += size) {
+    result.push(arr.slice(i, i + size));
+  }
+  return result;
+}
 
 // API URL dari ENV
 const API_URL = import.meta.env.VITE_API_URL;
@@ -238,14 +247,14 @@ export default function LandingPage() {
       </section>
 
       {/* Kategori */}
-      <section className="mt-2 mb-10 max-w-5xl mx-auto px-3" id="categories">
+      <section className="mt-2 mb-10 max-w-3xl mx-auto px-3 sm:px-4" id="categories">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-extrabold text-stone-800 tracking-wide">
             Whisky Wine And Whatever
           </h2>
           {kategoriAktif && (
             <button
-              className="flex items-center gap-2 bg-gradient-to-r from-stone-700 to-stone-800 text-white font-semibold rounded-full px-1 py-1 hover:scale-105 hover:from-Stone-500 hover:to-stone-600 transition-all duration-150"
+              className="flex items-center gap-2 bg-gradient-to-r from-stone-700 to-stone-800 text-white font-semibold rounded-full px-3 py-1 hover:scale-105 transition-all duration-150"
               onClick={() => setKategoriAktif("")}
             >
               <svg width="12" height="12" fill="none" viewBox="0 0 20 20">
@@ -261,27 +270,43 @@ export default function LandingPage() {
           )}
         </div>
 
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4 justify-center">
-          {kategoriList.length === 0 ? (
-            <div className="col-span-full text-gray-400 text-center">not Available.</div>
-          ) : (
-            kategoriList.map((kat) => (
-              <button
-                key={kat}
-                className={`overflow-hidden rounded-xl transition transform hover:scale-105 focus:outline-none ${
-                  kategoriAktif === kat ? "ring-liquorgold scale-115" : ""
-                }`}
-                onClick={() => setKategoriAktif(kat === kategoriAktif ? "" : kat)}
-              >
-                <img
-                  src={kategoriMap[kat] || othersImg}
-                  alt={kat}
-                  className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-full mx-auto"
-                />
-              </button>
-            ))
-          )}
-        </div>
+        {/* Slider kategori per 4 */}
+        <Swiper
+          modules={[Navigation]}
+          navigation
+          slidesPerView={1}
+          spaceBetween={8}
+          loop={false}
+          className="w-full"
+        >
+          {chunkArray(kategoriList, 5).map((group, idx) => (
+            <SwiperSlide key={idx}>
+              <div className="grid grid-cols-5 gap-1 sm:gap-2">
+                {group.map((kat) => (
+                  <div key={kat} className="flex flex-col items-center">
+                    <button
+                      className={`overflow-hidden transition transform hover:scale-105 focus:outline-none ${
+                        kategoriAktif === kat ? "ring-2 ring-liquorgold scale-110" : ""
+                      }`}
+                      onClick={() =>
+                        setKategoriAktif(kat === kategoriAktif ? "" : kat)
+                      }
+                    >
+                      <img
+                        src={kategoriMap[kat] || othersImg}
+                        alt={kat}
+                        className="w-22 h-22 sm:w-25 sm:h-25 object-cover rounded-md mx-auto"
+                      />
+                    </button>
+                    <span className="mt-1 text-[11px] sm:text-xs font-semibold text-center text-liquordark">
+                      {kat}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </section>
 
 
