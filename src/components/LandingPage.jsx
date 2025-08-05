@@ -556,7 +556,7 @@ export default function LandingPage() {
                 <img
                   src={src}
                   alt={`Instagram ${idx + 1}`}
-                  className="w-full h-[200px] sm:h-[500px] md:h-[400px] object-cover object-center rounded-md hover:scale-105 transition duration-200"
+                  className="w-full h-[200px] sm:h-[800px] md:h-[400px] object-cover object-center rounded-md hover:scale-105 transition duration-200"
                 />
               </a>
             </SwiperSlide>
@@ -715,3 +715,4 @@ export default function LandingPage() {
     </div>
   );
 }
+
