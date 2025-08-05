@@ -270,13 +270,14 @@ export default function LandingPage() {
           )}
         </div>
 
-        {/* Slider kategori per 4 */}
+        {/* Slider kategori per 5 */}
         <Swiper
           modules={[Navigation]}
           navigation
           slidesPerView={1}
-          spaceBetween={8}
-          loop={false}
+          spaceBetween={2}
+          loop={true}
+          allowTouchMove={true}
           className="w-full"
         >
           {chunkArray(kategoriList, 5).map((group, idx) => (
@@ -295,7 +296,7 @@ export default function LandingPage() {
                       <img
                         src={kategoriMap[kat] || othersImg}
                         alt={kat}
-                        className="w-22 h-22 sm:w-25 sm:h-25 object-cover rounded-md mx-auto"
+                        className="w-22 h-22 sm:w-25 sm:h-25 object-cover rounded-full mx-auto"
                       />
                     </button>
                     <span className="mt-1 text-[11px] sm:text-xs font-semibold text-center text-liquordark">
@@ -556,7 +557,7 @@ export default function LandingPage() {
                 <img
                   src={src}
                   alt={`Instagram ${idx + 1}`}
-                  className="w-full h-[200px] sm:h-[200px] md:h-[400px] object-cover object-center rounded-md hover:scale-105 transition duration-200"
+                  className="w-full h-[200px] sm:h-[500px] md:h-[400px] object-cover object-center rounded-md hover:scale-105 transition duration-200"
                 />
               </a>
             </SwiperSlide>
@@ -715,5 +716,3 @@ export default function LandingPage() {
     </div>
   );
 }
-
-
