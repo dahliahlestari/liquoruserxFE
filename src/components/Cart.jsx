@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { Trash2 } from "lucide-react";
 
@@ -7,19 +6,38 @@ export default function Cart({ cart, setCart }) {
   const [showNotif, setShowNotif] = useState(false);
   const prevCartLength = useRef(cart.length);
 
-  const totalItem = cart.reduce((sum, item) => sum + item.qty, 0);
-  const totalHarga = cart.reduce((sum, item) => sum + item.harga * item.qty, 0);
+  // --- helper: harga setelah diskon per item ---
+  const unitPrice = (item) => {
+    const harga = Number(item.harga) || 0;
+    const diskon = Number(item.diskon) || 0;
+    return Math.round((harga * (100 - diskon)) / 100);
+  };
 
+  const totalItem = cart.reduce(
+    (sum, item) => sum + (Number(item.qty) || 0),
+    0
+  );
+  const totalHarga = cart.reduce(
+    (sum, item) => sum + unitPrice(item) * (Number(item.qty) || 0),
+    0
+  );
+
+  // Simpan ke localStorage saat cart berubah
   useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
+    try {
+      localStorage.setItem("cart", JSON.stringify(cart));
+    } catch {}
   }, [cart]);
 
+  // Ambil dari localStorage HANYA sekali saat mount
   useEffect(() => {
-    const stored = localStorage.getItem("cart");
-    if (stored) {
-      setCart(JSON.parse(stored));
+    try {
+      const stored = JSON.parse(localStorage.getItem("cart") || "[]");
+      if (Array.isArray(stored)) setCart(stored);
+    } catch {
+      // ignore
     }
-  }, );
+  }, [setCart]);
 
   const handleRemove = (id) => {
     setCart((prev) => prev.filter((item) => item.id !== id));
@@ -28,34 +46,37 @@ export default function Cart({ cart, setCart }) {
   const handleQtyChange = (id, type) => {
     setCart((prev) =>
       prev.map((item) => {
-        if (item.id === id) {
-          const max = item.maxQty || 10;
-          const newQty =
-            type === "plus"
-              ? Math.min(item.qty + 1, max)
-              : Math.max(1, item.qty - 1);
-          return { ...item, qty: newQty };
-        }
-        return item;
+        if (item.id !== id) return item;
+        const max = Number(item.stok ?? item.maxQty ?? 99);
+        const next = type === "plus" ? item.qty + 1 : item.qty - 1;
+        return { ...item, qty: Math.max(1, Math.min(next, max)) };
       })
     );
   };
 
   const handleCheckout = () => {
+    if (cart.length === 0) return;
+
     const msg = encodeURIComponent(
       `Halo, saya ingin memesan:\n\n${cart
-        .map(
-          (item) =>
-            `➤ ${item.nama}\n   Jumlah: ${item.qty}\n   Harga: Rp ${item.harga.toLocaleString(
-              "id-ID"
-            )} x ${item.qty} = Rp ${(item.harga * item.qty).toLocaleString("id-ID")}`
-        )
-        .join("\n\n")}\n\nTOTAL: Rp ${totalHarga.toLocaleString("id-ID")}\n\nTerima kasih!`
+        .map((item) => {
+          const satuan = unitPrice(item);
+          const subtotal = satuan * item.qty;
+          return `➤ ${item.nama}
+   Jumlah: ${item.qty}
+   Harga: Rp ${satuan.toLocaleString("id-ID")} x ${
+            item.qty
+          } = Rp ${subtotal.toLocaleString("id-ID")}`;
+        })
+        .join("\n\n")}\n\nTOTAL: Rp ${totalHarga.toLocaleString(
+        "id-ID"
+      )}\n\nTerima kasih!`
     );
 
     window.open(`https://wa.me/6281299723970?text=${msg}`, "_blank");
   };
 
+  // ESC tutup
   useEffect(() => {
     const toggle = (e) => {
       if (e.key === "Escape") setShow(false);
@@ -64,10 +85,12 @@ export default function Cart({ cart, setCart }) {
     return () => window.removeEventListener("keydown", toggle);
   }, []);
 
+  // Notif “Added!”
   useEffect(() => {
     if (cart.length > prevCartLength.current) {
       setShowNotif(true);
-      setTimeout(() => setShowNotif(false), 2000);
+      const t = setTimeout(() => setShowNotif(false), 2000);
+      return () => clearTimeout(t);
     }
     prevCartLength.current = cart.length;
   }, [cart]);
@@ -108,57 +131,67 @@ export default function Cart({ cart, setCart }) {
             </h2>
 
             {cart.length === 0 ? (
-              <p className="text-gray-500 text-center">Keranjang masih kosong</p>
+              <p className="text-gray-500 text-center">
+                Keranjang masih kosong
+              </p>
             ) : (
               <>
                 <ul className="space-y-5 mb-6 max-h-[350px] overflow-y-auto pr-1">
-                  {cart.map((item) => (
-                    <li
-                      key={item.id}
-                      className="flex items-start gap-4 bg-gray-50 rounded-xl p-4 shadow-sm"
-                    >
-                      {item.gambar && (
-                        <img
-                          src={item.gambar}
-                          alt={item.nama}
-                          className="w-20 h-20 object-cover rounded-xl border border-gray-200"
-                        />
-                      )}
-                      <div className="flex-1">
-                        <h3 className="text-base font-semibold">{item.nama}</h3>
-                        <div className="flex items-center gap-2 mt-2">
-                          <button
-                            onClick={() => handleQtyChange(item.id, "minus")}
-                            className="bg-gray-200 px-3 rounded-full hover:bg-gray-300 font-bold"
-                          >
-                            -
-                          </button>
-                          <span className="min-w-[28px] text-center text-sm">
-                            {item.qty}
-                          </span>
-                          <button
-                            onClick={() => handleQtyChange(item.id, "plus")}
-                            className="bg-gray-200 px-3 rounded-full hover:bg-gray-300 font-bold"
-                          >
-                            +
-                          </button>
-                        </div>
-                        <p className="text-sm text-gray-600 mt-1">
-                          Rp {item.harga.toLocaleString("id-ID")} x {item.qty} ={" "}
-                          <span className="font-semibold text-black">
-                            Rp {(item.harga * item.qty).toLocaleString("id-ID")}
-                          </span>
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => handleRemove(item.id)}
-                        className="text-red-500 hover:text-red-700"
-                        title="Hapus item"
+                  {cart.map((item) => {
+                    const satuan = unitPrice(item);
+                    return (
+                      <li
+                        key={item.id}
+                        className="flex items-start gap-4 bg-gray-50 rounded-xl p-4 shadow-sm"
                       >
-                        <Trash2 size={18} />
-                      </button>
-                    </li>
-                  ))}
+                        {item.gambar && (
+                          <img
+                            src={item.gambar}
+                            alt={item.nama}
+                            className="w-20 h-20 object-cover rounded-xl border border-gray-200"
+                            onError={(e) =>
+                              (e.currentTarget.style.display = "none")
+                            }
+                          />
+                        )}
+                        <div className="flex-1">
+                          <h3 className="text-base font-semibold">
+                            {item.nama}
+                          </h3>
+                          <div className="flex items-center gap-2 mt-2">
+                            <button
+                              onClick={() => handleQtyChange(item.id, "minus")}
+                              className="bg-gray-200 px-3 rounded-full hover:bg-gray-300 font-bold"
+                            >
+                              -
+                            </button>
+                            <span className="min-w-[28px] text-center text-sm">
+                              {item.qty}
+                            </span>
+                            <button
+                              onClick={() => handleQtyChange(item.id, "plus")}
+                              className="bg-gray-200 px-3 rounded-full hover:bg-gray-300 font-bold"
+                            >
+                              +
+                            </button>
+                          </div>
+                          <p className="text-sm text-gray-600 mt-1">
+                            Rp {satuan.toLocaleString("id-ID")} x {item.qty} ={" "}
+                            <span className="font-semibold text-black">
+                              Rp {(satuan * item.qty).toLocaleString("id-ID")}
+                            </span>
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => handleRemove(item.id)}
+                          className="text-red-500 hover:text-red-700"
+                          title="Hapus item"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </li>
+                    );
+                  })}
                 </ul>
 
                 <div className="border-t pt-4 mb-4 text-sm text-gray-700 space-y-1">

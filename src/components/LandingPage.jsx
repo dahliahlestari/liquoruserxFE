@@ -1,9 +1,14 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect, useMemo, useState } from "react";
+
+// Firestore
+import { db } from "../lib/firebase";
+import { collection, getDocs, orderBy, query } from "firebase/firestore";
+
+// Aset (kategori & banner & ig)
 import banner1 from "../assets/banner1.png";
 import banner2 from "../assets/banner2.png";
 import cognacImg from "../assets/cognac.png";
-import ginImg from "../assets/Gin.png";  
+import ginImg from "../assets/Gin.png";
 import rumImg from "../assets/Rum.png";
 import tequilaImg from "../assets/Tequila.png";
 import vodkaImg from "../assets/Vodka.png";
@@ -11,37 +16,32 @@ import whiskyImg from "../assets/whisky.png";
 import wineImg from "../assets/wine.png";
 import liqueurImg from "../assets/Liqueur.png";
 import othersImg from "../assets/others.png";
-import igpost1 from "../assets/ig1.jpg"
-import igpost2 from "../assets/ig2.jpg"
-import igpost3 from "../assets/ig3.jpg"
-import igpost4 from "../assets/ig4.jpg"
-import igpost5 from "../assets/ig5.jpg"
-import igpost6 from "../assets/ig6.jpg"
-import igpost7 from "../assets/ig7.jpg"
-import igpost8 from "../assets/ig8.png"
-import tokopedia from "../assets/tokopedia.png"
-import blibli from "../assets/blibli.png"
+import igpost1 from "../assets/ig1.jpg";
+import igpost2 from "../assets/ig2.jpg";
+import igpost3 from "../assets/ig3.jpg";
+import igpost4 from "../assets/ig4.jpg";
+import igpost5 from "../assets/ig5.jpg";
+import igpost6 from "../assets/ig6.jpg";
+import igpost7 from "../assets/ig7.jpg";
+import igpost8 from "../assets/ig8.png";
+import tokopedia from "../assets/tokopedia.png";
+import blibli from "../assets/blibli.png";
 
 // Swiper
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation } from "swiper/modules";
+import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
-import { Pagination, Autoplay } from "swiper/modules";
+
 import Cart from "./Cart.jsx";
 
-function chunkArray(arr, size) {
-  const result = [];
-  for (let i = 0; i < arr.length; i += size) {
-    result.push(arr.slice(i, i + size));
-  }
-  return result;
-}
+// Util kecil
+const chunkArray = (arr, size) => {
+  const out = [];
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+  return out;
+};
 
-// API URL dari ENV
-const API_URL = import.meta.env.VITE_API_URL;
-
-// Emoji kategori
 const kategoriMap = {
   Whisky: whiskyImg,
   Vodka: vodkaImg,
@@ -49,7 +49,7 @@ const kategoriMap = {
   Rum: rumImg,
   Tequila: tequilaImg,
   Wine: wineImg,
-  cognac: cognacImg,
+  Cognac: cognacImg, // <- huruf C besar (cocok dgn data)
   Liqueur: liqueurImg,
   Others: othersImg,
 };
@@ -64,33 +64,48 @@ const waOrderLink =
   "https://wa.me/6281299723970?text=Halo%2C%20saya%20mau%20order%20minuman%20di%20W3LIQUOR%20!";
 
 export default function LandingPage() {
-  const [liquors, setLiquors] = useState([]);
+  const [liquors, setLiquors] = useState([]); // selalu array
+  const [loading, setLoading] = useState(true);
   const [kategoriAktif, setKategoriAktif] = useState("");
   const [search, setSearch] = useState("");
   const [navbarOpen, setNavbarOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [cart, setCart] = useState([]);
-  const [setShowNotif] = useState(false);
   const [qtyInputs, setQtyInputs] = useState({});
 
+  // Fetch dari Firestore
   useEffect(() => {
-    axios
-      .get(`${API_URL}/api/liquors`)
-      .then((res) => setLiquors(res.data))
-      .catch(() => setLiquors([]));
+    (async () => {
+      try {
+        const snap = await getDocs(
+          query(collection(db, "products"), orderBy("createdAt", "desc"))
+        );
+        const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        setLiquors(items);
+      } catch (e) {
+        console.error(e);
+        setLiquors([]); // tetap array
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
-  const kategoriList = [
-    ...new Set(liquors.map((l) => l.kategori).filter(Boolean)),
-  ];
-
-  const produkFiltered = liquors.filter(
-    (l) =>
-      (!kategoriAktif || l.kategori === kategoriAktif) &&
-      (!search ||
-        l.nama.toLowerCase().includes(search.toLowerCase()) ||
-        l.kategori?.toLowerCase().includes(search.toLowerCase()))
+  const kategoriList = useMemo(
+    () => [...new Set(liquors.map((l) => l.kategori).filter(Boolean))],
+    [liquors]
   );
+
+  const produkFiltered = useMemo(() => {
+    const s = search.trim().toLowerCase();
+    return liquors.filter(
+      (l) =>
+        (!kategoriAktif || l.kategori === kategoriAktif) &&
+        (!s ||
+          l.nama?.toLowerCase().includes(s) ||
+          l.kategori?.toLowerCase().includes(s))
+    );
+  }, [liquors, kategoriAktif, search]);
 
   const waLink = (nama) => {
     const msg = encodeURIComponent(`Halo, saya ingin pesan produk ${nama}.`);
@@ -98,24 +113,33 @@ export default function LandingPage() {
   };
 
   const addToCart = (product, qty = 1) => {
-    const jumlah = parseInt(qty) || 1;
-    setCart((prevCart) => {
-      const existing = prevCart.find((item) => item.id === product.id);
-      if (existing) {
-        return prevCart.map((item) =>
-          item.id === product.id ? { ...item, qty: item.qty + jumlah } : item
+    const jumlah = parseInt(qty, 10) || 1;
+    setCart((prev) => {
+      const ex = prev.find((i) => i.id === product.id);
+      if (ex)
+        return prev.map((i) =>
+          i.id === product.id ? { ...i, qty: i.qty + jumlah } : i
         );
-      } else {
-        return [...prevCart, { ...product, qty: jumlah }];
-      }
+      return [...prev, { ...product, qty: jumlah }];
     });
-    setShowNotif(true);
-    setTimeout(() => setShowNotif(false), 2000);
+    setQtyInputs((p) => ({ ...p, [product.id]: 1 }));
   };
 
+  // Banner & IG array
+  const banners = [banner1, banner2];
+  const igImages = [
+    igpost1,
+    igpost2,
+    igpost3,
+    igpost4,
+    igpost5,
+    igpost6,
+    igpost7,
+    igpost8,
+  ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-tr from-yellow-50 via-blue-50 to-white font-sans">
+    <div className="min-h-screen flex flex-col bg-gradient-to-tr from-yellow-50 via-blue-50 to-white font-sans text-gray-800">
       {/* Floating WhatsApp Order Now Button */}
       <a
         href={waOrderLink}
@@ -138,46 +162,36 @@ export default function LandingPage() {
           />
         </svg>
         <span className="hidden sm:inline animate-bounceOrder">Chat!</span>
-        <style>
-          {`
-            @keyframes pulseOrder {
-              0% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.7); }
-              70% { box-shadow: 0 0 0 16px rgba(39, 174, 96, 0); }
-              100% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0); }
-            }
-            .animate-pulseOrder {
-              animation: pulseOrder 2.5s infinite;
-            }
-            @keyframes bounceOrder {
-              0%, 100% { transform: translateY(0);}
-              50% { transform: translateY(-8px);}
-            }
-            .animate-bounceOrder {
-              animation: bounceOrder 1.2s infinite;
-            }
-          `}
-        </style>
+        <style>{`
+          @keyframes pulseOrder {
+            0% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.7); }
+            70% { box-shadow: 0 0 0 16px rgba(39, 174, 96, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0); }
+          }
+          .animate-pulseOrder { animation: pulseOrder 2.5s infinite; }
+          @keyframes bounceOrder { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+          .animate-bounceOrder { animation: bounceOrder 1.2s infinite; }
+        `}</style>
       </a>
 
-      {/* Navbar */}
+      {/* Navbar (hapus nested <a>) */}
       <nav className="bg-white/90 backdrop-blur sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex justify-between items-center h-16">
             <a href="#" className="flex items-center gap-3">
-              <a href="#" className="flex items-center gap-3">
-                <img
-                  src="/log.png"
-                  alt="W3LIQUOR Logo"
-                  className="w-20 h-auto object-contain"
-                />
-              </a>
+              <img
+                src="/log.png"
+                alt="W3LIQUOR Logo"
+                className="w-20 h-auto object-contain"
+              />
             </a>
+
             <div className="hidden md:flex gap-8 items-center">
               {NAV_LINKS.map((lnk) => (
                 <a
                   key={lnk.label}
                   href={lnk.href}
-                  className="text-gray-600 hover:text-liquorgold font-semibold transition tracking-wide"
+                  className="text-gray-700 hover:text-liquorgold font-semibold transition tracking-wide"
                 >
                   {lnk.label}
                 </a>
@@ -200,6 +214,7 @@ export default function LandingPage() {
             </button>
           </div>
         </div>
+
         {navbarOpen && (
           <div className="md:hidden bg-white border-t border-gray-200">
             <div className="flex flex-col py-2 gap-1 px-5">
@@ -217,22 +232,25 @@ export default function LandingPage() {
           </div>
         )}
       </nav>
-      
+
       {/* Cart */}
       <Cart cart={cart} setCart={setCart} />
 
       {/* Banner Carousel */}
       <section className="mb-8 mt-8 w-full px-2 sm:px-4 lg:px-0 max-w-6xl mx-auto">
-        <div className="rounded-xl overflow-hidden w-full bg-gray-100 relative" style={{ aspectRatio: "16/9" }}>
+        <div
+          className="rounded-xl overflow-hidden w-full bg-gray-100 relative"
+          style={{ aspectRatio: "16/9" }}
+        >
           <Swiper
             modules={[Pagination, Autoplay]}
             pagination={{ clickable: true }}
             autoplay={{ delay: 4200, disableOnInteraction: false }}
             slidesPerView={1}
-            loop
+            loop={banners.length > 1} // hindari warning
             className="w-full h-full"
           >
-            {[banner1, banner2].map((img, idx) => (
+            {banners.map((img, idx) => (
               <SwiperSlide key={idx}>
                 <img
                   src={img}
@@ -247,7 +265,10 @@ export default function LandingPage() {
       </section>
 
       {/* Kategori */}
-      <section className="mt-2 mb-10 max-w-3xl mx-auto px-3 sm:px-4" id="categories">
+      <section
+        className="mt-2 mb-10 max-w-3xl mx-auto px-3 sm:px-4"
+        id="categories"
+      >
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-extrabold text-stone-800 tracking-wide">
             Whisky Wine And Whatever
@@ -270,14 +291,13 @@ export default function LandingPage() {
           )}
         </div>
 
-        {/* Slider kategori per 5 */}
         <Swiper
           modules={[Navigation]}
           navigation
           slidesPerView={1}
           spaceBetween={2}
-          loop={true}
-          allowTouchMove={true}
+          loop={kategoriList.length > 5} // loop hanya bila cukup slide
+          allowTouchMove
           className="w-full"
         >
           {chunkArray(kategoriList, 5).map((group, idx) => (
@@ -287,7 +307,9 @@ export default function LandingPage() {
                   <div key={kat} className="flex flex-col items-center">
                     <button
                       className={`overflow-hidden transition transform hover:scale-105 focus:outline-none ${
-                        kategoriAktif === kat ? "ring-2 ring-liquorgold scale-110" : ""
+                        kategoriAktif === kat
+                          ? "ring-2 ring-liquorgold scale-110"
+                          : ""
                       }`}
                       onClick={() =>
                         setKategoriAktif(kat === kategoriAktif ? "" : kat)
@@ -310,8 +332,6 @@ export default function LandingPage() {
         </Swiper>
       </section>
 
-
-
       {/* Search Bar */}
       <section className="mb-7 max-w-4xl mx-auto px-3">
         <input
@@ -328,86 +348,93 @@ export default function LandingPage() {
           {kategoriAktif ? `Produk ${kategoriAktif}` : "All Products"}
         </h2>
 
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {produkFiltered.length === 0 ? (
-            <div className="col-span-full text-center text-gray-400 py-10">
-              No Products Found
-            </div>
-          ) : (
-            produkFiltered.map((liq) => (
-              <div
-                key={liq.id}
-                className="bg-white rounded-2xl shadow-md flex flex-col items-center p-4 relative hover:scale-[1.02] hover:shadow-lg transition-all border border-gray-200 cursor-pointer"
-                onClick={() => setSelectedProduct(liq)}
-              >
-                {liq.diskon > 0 && (
-                  <span className="absolute top-2 right-2 bg-red-600 text-white font-bold px-2 py-0.5 rounded-full text-xs">
-                    Special Offer
-                  </span>
-                )}
-                {liq.stok === 0 && (
-                  <span className="absolute top-2 left-2 bg-gray-700 text-white font-bold px-2 py-0.5 rounded-full text-xs shadow">
-                    Sold Out
-                  </span>
-                )}
-
-                <img
-                  src={liq.gambar}
-                  alt={liq.nama}
-                  className="w-50 h-50 sm:w-50 sm:h-50 object-cover rounded-xl mb-2 border"
-                  onError={(e) => (e.target.src = "/notfound.png")}
-                />
-
-                <div className="font-semibold text-sm sm:text-base text-gray-900 text-center mb-1 line-clamp-1">
-                  {liq.nama}
-                </div>
-
-                <div className="text-gray-500 text-xs sm:text-sm text-center mb-1 line-clamp-2">
-                  {liq.deskripsi}
-                </div>
-
-               <div className="text-center mb-2">
-                  {liq.diskon > 0 ? (
-                    <div className="flex flex-col items-center leading-snug">
-                      <span className="line-through text-red-400 text-sm font-medium">
-                        Rp{Number(liq.harga).toLocaleString()}
-                      </span>
-                      <span className="text-stone-800 font-extrabold text-lg">
-                        Rp{Number(liq.harga - (liq.harga * liq.diskon) / 100).toLocaleString()}
-                      </span>
-                    </div>
-                  ) : (
-                    <span className="text-liquordark font-bold text-lg">
-                      Rp{Number(liq.harga).toLocaleString()}
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-center gap-2 text-xs text-gray-500 mb-3">
-                  <span className="flex items-center text-yellow-500 font-bold">
-                    ⭐ {Number(liq.rating || 5).toFixed(1)}
-                  </span>
-                  <span>{liq.sold || 0} sold</span>
-                </div>
-
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (liq.stok === 0) return;
-                    addToCart(liq, qtyInputs[liq.id]);
-                    setQtyInputs((prev) => ({ ...prev, [liq.id]: 1 }));
-                  }}
-                  className="relative bg-gradient-to-tr from-liquorgoldlight to-liquorgold text-white font-bold px-3 py-2 rounded-xl w-full shadow transition hover:from-liquorgold hover:to-liquordarkgold"
-                  disabled={liq.stok === 0}
-                >
-                  <span>Add to Cart</span>
-                </button>
+        {loading ? (
+          <div className="text-center text-gray-500 py-10">Loading...</div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {produkFiltered.length === 0 ? (
+              <div className="col-span-full text-center text-gray-400 py-10">
+                No Products Found
               </div>
-            ))
-          )}
-        </div>
-      </section>
+            ) : (
+              produkFiltered.map((liq) => {
+                const harga = Number(liq.harga) || 0;
+                const diskon = Number(liq.diskon) || 0;
+                const finalHarga = harga - (harga * diskon) / 100;
+                return (
+                  <div
+                    key={liq.id}
+                    className="bg-white rounded-2xl shadow-md flex flex-col items-center p-4 relative hover:scale-[1.02] hover:shadow-lg transition-all border border-gray-200 cursor-pointer"
+                    onClick={() => setSelectedProduct(liq)}
+                  >
+                    {diskon > 0 && (
+                      <span className="absolute top-2 right-2 bg-red-600 text-white font-bold px-2 py-0.5 rounded-full text-xs">
+                        Special Offer
+                      </span>
+                    )}
+                    {Number(liq.stok) === 0 && (
+                      <span className="absolute top-2 left-2 bg-gray-700 text-white font-bold px-2 py-0.5 rounded-full text-xs shadow">
+                        Sold Out
+                      </span>
+                    )}
 
+                    <img
+                      src={liq.gambar || "/notfound.png"}
+                      alt={liq.nama}
+                      className="w-50 h-50 sm:w-50 sm:h-50 object-cover rounded-xl mb-2 border"
+                      onError={(e) => (e.currentTarget.src = "/notfound.png")}
+                    />
+
+                    <div className="font-semibold text-sm sm:text-base text-gray-900 text-center mb-1 line-clamp-1">
+                      {liq.nama}
+                    </div>
+
+                    <div className="text-gray-500 text-xs sm:text-sm text-center mb-1 line-clamp-2">
+                      {liq.deskripsi}
+                    </div>
+
+                    <div className="text-center mb-2">
+                      {diskon > 0 ? (
+                        <div className="flex flex-col items-center leading-snug">
+                          <span className="line-through text-red-400 text-sm font-medium">
+                            Rp{harga.toLocaleString()}
+                          </span>
+                          <span className="text-stone-800 font-extrabold text-lg">
+                            Rp{finalHarga.toLocaleString()}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-liquordark font-bold text-lg">
+                          Rp{harga.toLocaleString()}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-center gap-2 text-xs text-gray-500 mb-3">
+                      <span className="flex items-center text-yellow-500 font-bold">
+                        ⭐ {Number(liq.rating ?? 5).toFixed(1)}
+                      </span>
+                      <span>{liq.sold || 0} sold</span>
+                    </div>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (Number(liq.stok) === 0) return;
+                        addToCart(liq, qtyInputs[liq.id]);
+                      }}
+                      className="relative bg-gradient-to-tr from-liquorgoldlight to-liquorgold text-white font-bold px-3 py-2 rounded-xl w-full shadow transition hover:from-liquorgold hover:to-liquordarkgold disabled:opacity-60"
+                      disabled={Number(liq.stok) === 0}
+                    >
+                      <span>Add to Cart</span>
+                    </button>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        )}
+      </section>
 
       {/* MODAL PRODUK DETAIL */}
       {selectedProduct && (
@@ -419,7 +446,6 @@ export default function LandingPage() {
             className="bg-white rounded-1xl max-w-md w-full p-7 relative shadow-0.5xl border-1 border-yellow-200 animate-fadeIn"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Tombol close */}
             <button
               className="absolute top-5 right-5 text-xl text-gray-400 hover:text-red-600 transition"
               onClick={() => setSelectedProduct(null)}
@@ -427,40 +453,44 @@ export default function LandingPage() {
             >
               ×
             </button>
+
             <img
-              src={selectedProduct.gambar}
+              src={selectedProduct.gambar || "/notfound.png"}
               alt={selectedProduct.nama}
               className="w-36 h-36 object-cover rounded-xl mx-auto mb-4 border shadow"
-              onError={(e) => (e.target.src = "/notfound.png")}
+              onError={(e) => (e.currentTarget.src = "/notfound.png")}
             />
+
             <div className="font-bold text-2xl text-gray-800 text-left mb-1">
               {selectedProduct.nama}
             </div>
-            <div className="flex justify-left gap-2 mb-2">
-              <span className="text-grey-600 font-bold bg-grey-100 px-3 py-1 rounded-full text-xs">
-              </span>
-            </div>
+
             <div className="text-left mb-4">
-                {selectedProduct.diskon > 0 ? (
-                  <div className="flex flex-col">
-                    <span className="line-through text-red-400 text-base font-medium mb-1">
-                      Rp{Number(selectedProduct.harga).toLocaleString()}
-                    </span>
-                    <span className="text-gray-800 font-bold text-xl">
-                      Rp{Number(
-                        selectedProduct.harga - (selectedProduct.harga * selectedProduct.diskon) / 100
-                      ).toLocaleString()}
-                    </span>
-                  </div>
-                ) : (
-                  <span className="text-gray-800 font-bold text-xl">
-                    Rp{Number(selectedProduct.harga).toLocaleString()}
+              {Number(selectedProduct.diskon) > 0 ? (
+                <div className="flex flex-col">
+                  <span className="line-through text-red-400 text-base font-medium mb-1">
+                    Rp{Number(selectedProduct.harga || 0).toLocaleString()}
                   </span>
-                )}
-              </div>
-            <div className="text-sm text-gray-600 text-left mb-2 whitespace-pre-line">
-              {selectedProduct.deskripsi} 
+                  <span className="text-gray-800 font-bold text-xl">
+                    Rp
+                    {(
+                      (Number(selectedProduct.harga || 0) *
+                        (100 - Number(selectedProduct.diskon || 0))) /
+                      100
+                    ).toLocaleString()}
+                  </span>
+                </div>
+              ) : (
+                <span className="text-gray-800 font-bold text-xl">
+                  Rp{Number(selectedProduct.harga || 0).toLocaleString()}
+                </span>
+              )}
             </div>
+
+            <div className="text-sm text-gray-600 text-left mb-2 whitespace-pre-line">
+              {selectedProduct.deskripsi}
+            </div>
+
             <div className="flex items-center justify-left gap-5 mb-6">
               <span className="flex items-center text-yellow-600 font-bold">
                 <svg
@@ -489,6 +519,7 @@ export default function LandingPage() {
                 {selectedProduct.sold || 0} Sold
               </span>
             </div>
+
             <a
               href={waLink(selectedProduct.nama)}
               target="_blank"
@@ -501,7 +532,7 @@ export default function LandingPage() {
         </div>
       )}
 
-      {/* About Section */}
+      {/* About */}
       <section
         className="max-w-7xl mx-auto mt-16 mb-10 px-6 py-8 rounded-2xl bg-white/70 shadow-xl border border-stone-100"
         id="about"
@@ -510,8 +541,14 @@ export default function LandingPage() {
           W3liquor
         </h2>
         <p className="text-gray-700 text-center leading-relaxed text-lg">
-           Whisky Wine And Whatever 100% Original Liquor Store
-           <br />At W3liquor, we’re passionate about delivering authentic, premium-quality spirits from around the world. Whether you’re a whisky aficionado, a wine enthusiast, or simply exploring the vibrant universe of liquors, our store is your trusted destination for 100% original, meticulously sourced bottles.<br />
+          Whisky Wine And Whatever 100% Original Liquor Store
+          <br />
+          At W3liquor, we’re passionate about delivering authentic,
+          premium-quality spirits from around the world. Whether you’re a whisky
+          aficionado, a wine enthusiast, or simply exploring the vibrant
+          universe of liquors, our store is your trusted destination for 100%
+          original, meticulously sourced bottles.
+          <br />
           <br />
           <b>Get more Special offer! chat us now</b>
           <br />
@@ -521,7 +558,7 @@ export default function LandingPage() {
         </p>
       </section>
 
-      {/* Manual Instagram Section */}
+      {/* Instagram manual */}
       <section className="w-full px-2 sm:px-3 py-6 bg-white" id="instagram">
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
           Follow Us on Instagram
@@ -534,20 +571,11 @@ export default function LandingPage() {
             640: { slidesPerView: 2 },
             1024: { slidesPerView: 3 },
           }}
-          loop={true}
+          loop={igImages.length > 3}
           autoplay={{ delay: 1500, disableOnInteraction: false }}
           className="w-full max-w-5xl mx-auto"
         >
-          {[
-            igpost1,
-            igpost2,
-            igpost3,
-            igpost4,
-            igpost5,
-            igpost6,
-            igpost7,
-            igpost8
-          ].map((src, idx) => (
+          {igImages.map((src, idx) => (
             <SwiperSlide key={idx}>
               <a
                 href="https://www.instagram.com/w3liquor/"
@@ -565,14 +593,15 @@ export default function LandingPage() {
         </Swiper>
       </section>
 
-      {/* Tokopedia & Blibli Store Section */}
-      <section className="w-full px-4 sm:px-10 py-16 bg-white" id="official-stores">
+      {/* Tokopedia & Blibli */}
+      <section
+        className="w-full px-4 sm:px-10 py-16 bg-white"
+        id="official-stores"
+      >
         <h2 className="text-3xl font-bold text-center text-stone-800 mb-10">
           Shop at Our Official Stores!
         </h2>
-
         <div className="flex flex-wrap justify-center items-center gap-6 max-w-2xl mx-auto">
-          {/* Tokopedia Button */}
           <a
             href="https://www.tokopedia.com/weliquor"
             target="_blank"
@@ -588,7 +617,6 @@ export default function LandingPage() {
             Tokopedia Store
           </a>
 
-          {/* Blibli Button */}
           <a
             href="https://www.blibli.com/merchant/w3liquor/W3R-70000?pickupPointCode=PP-3542947"
             target="_blank"
@@ -596,11 +624,7 @@ export default function LandingPage() {
             className="flex items-center gap-3 bg-blue-700 hover:bg-blue-800 text-white font-semibold py-3 px-5 rounded-xl shadow-md transition duration-300 w-[260px] justify-center"
             title="Kunjungi toko Blibli W3LIQUOR"
           >
-            <img
-              src={blibli}
-              alt="Blibli w3liquor"
-              className="w-7 h-7"
-            />
+            <img src={blibli} alt="Blibli w3liquor" className="w-7 h-7" />
             Blibli Store
           </a>
         </div>
@@ -624,27 +648,20 @@ export default function LandingPage() {
               </span>
             </div>
           </div>
+
           <div className="text-sm">
             <div className="font-semibold mb-1">More Information:</div>
             <div>
-              Pengiriman Instan/Sameday:{" "}
-              <a>
-               Gojek
-              </a>
+              Pengiriman Instan/Sameday: <span>Gojek</span>
             </div>
             <div>
-              Location:{" "}
-              <a>
-                Jakarta Barat
-              </a>
+              Location: <span>Jakarta Barat</span>
             </div>
             <div>
-              Jam Operational:{" "}
-              <a>
-                Senin - Minggu | 11:00 - 22:00
-              </a>
+              Jam Operational: <span>Senin - Minggu | 11:00 - 22:00</span>
             </div>
           </div>
+
           <div className="text-sm">
             <div className="font-semibold mb-1">Contact:</div>
             <div>
@@ -668,8 +685,8 @@ export default function LandingPage() {
               </a>
             </div>
           </div>
+
           <div className="flex gap-6 text-xl items-center">
-            {/* Instagram */}
             <a
               href="https://www.instagram.com/w3liquor"
               className="hover:text-liquorgold flex items-center gap-1"
@@ -680,7 +697,6 @@ export default function LandingPage() {
             >
               <span className="hidden md:inline">Instagram</span>
             </a>
-            {/* Tokopedia */}
             <a
               href="https://tokopedia.link/aiKJUeadaVb"
               className="hover:text-liquorgold flex items-center gap-1"
@@ -689,12 +705,8 @@ export default function LandingPage() {
               aria-label="Tokopedia"
               title="Tokopedia"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24">
-                  fill="#fff"
-              </svg>
               <span className="hidden md:inline">Tokopedia</span>
             </a>
-            {/* Blibli */}
             <a
               href="https://blibli.onelink.me/GNtk/ys8uoloo"
               className="hover:text-liquorgold flex items-center gap-1"
@@ -703,8 +715,6 @@ export default function LandingPage() {
               aria-label="Blibli"
               title="Blibli"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24">
-              </svg>
               <span className="hidden md:inline">Blibli</span>
             </a>
           </div>
