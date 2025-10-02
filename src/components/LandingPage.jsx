@@ -1,26 +1,10 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 // Firestore
 import { db } from "../lib/firebase";
 import { collection, getDocs, orderBy, query } from "firebase/firestore";
 
-// Swiper
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination, Autoplay, A11y } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/pagination";
-import "swiper/css/navigation";
-
-// Animations
-import { motion, AnimatePresence } from "framer-motion";
-
-// Assets
+// Aset (kategori & banner & ig)
 import banner1 from "../assets/banner1.png";
 import banner2 from "../assets/banner2.png";
 import cognacImg from "../assets/cognac.png";
@@ -43,10 +27,15 @@ import igpost8 from "../assets/ig8.png";
 import tokopedia from "../assets/tokopedia.png";
 import blibli from "../assets/blibli.png";
 
-// Local components
+// Swiper
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination, Autoplay } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
+
 import Cart from "./Cart.jsx";
 
-/** Utils **/
+// Util kecil
 const chunkArray = (arr, size) => {
   const out = [];
   for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
@@ -60,7 +49,7 @@ const kategoriMap = {
   Rum: rumImg,
   Tequila: tequilaImg,
   Wine: wineImg,
-  Cognac: cognacImg,
+  Cognac: cognacImg, // <- huruf C besar (cocok dgn data)
   Liqueur: liqueurImg,
   Others: othersImg,
 };
@@ -69,48 +58,20 @@ const NAV_LINKS = [
   { label: "Home", href: "#" },
   { label: "Product", href: "#products" },
   { label: "About Us", href: "#about" },
-  { label: "Official Stores", href: "#official-stores" },
 ];
 
-const IG_IMAGES = [
-  igpost1,
-  igpost2,
-  igpost3,
-  igpost4,
-  igpost5,
-  igpost6,
-  igpost7,
-  igpost8,
-];
+const waOrderLink =
+  "https://wa.me/6281299723970?text=Halo%2C%20saya%20mau%20order%20minuman%20di%20W3LIQUOR%20!";
 
-const WA_NUMBER = "6281299723970";
-const waOrderLink = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(
-  "Halo, saya mau order minuman di W3LIQUOR!"
-)}`;
-
-const formatRupiah = (n) => `Rp${(Number(n) || 0).toLocaleString("id-ID")}`;
-
-const useDebounced = (value, delay = 250) => {
-  const [v, setV] = useState(value);
-  useEffect(() => {
-    const id = setTimeout(() => setV(value), delay);
-    return () => clearTimeout(id);
-  }, [value, delay]);
-  return v;
-};
-
-export default function LandingPageIndustryPro() {
-  const [liquors, setLiquors] = useState([]);
+export default function LandingPage() {
+  const [liquors, setLiquors] = useState([]); // selalu array
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [kategoriAktif, setKategoriAktif] = useState("");
   const [search, setSearch] = useState("");
   const [navbarOpen, setNavbarOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [cart, setCart] = useState([]);
   const [qtyInputs, setQtyInputs] = useState({});
-
-  const debouncedSearch = useDebounced(search, 300);
 
   // Fetch dari Firestore
   useEffect(() => {
@@ -123,8 +84,7 @@ export default function LandingPageIndustryPro() {
         setLiquors(items);
       } catch (e) {
         console.error(e);
-        setError("Gagal memuat produk. Coba muat ulang halaman.");
-        setLiquors([]);
+        setLiquors([]); // tetap array
       } finally {
         setLoading(false);
       }
@@ -137,7 +97,7 @@ export default function LandingPageIndustryPro() {
   );
 
   const produkFiltered = useMemo(() => {
-    const s = debouncedSearch.trim().toLowerCase();
+    const s = search.trim().toLowerCase();
     return liquors.filter(
       (l) =>
         (!kategoriAktif || l.kategori === kategoriAktif) &&
@@ -145,14 +105,14 @@ export default function LandingPageIndustryPro() {
           l.nama?.toLowerCase().includes(s) ||
           l.kategori?.toLowerCase().includes(s))
     );
-  }, [liquors, kategoriAktif, debouncedSearch]);
+  }, [liquors, kategoriAktif, search]);
 
-  const waLink = useCallback((nama) => {
+  const waLink = (nama) => {
     const msg = encodeURIComponent(`Halo, saya ingin pesan produk ${nama}.`);
-    return `https://wa.me/${WA_NUMBER}?text=${msg}`;
-  }, []);
+    return `https://wa.me/6281299723970?text=${msg}`;
+  };
 
-  const addToCart = useCallback((product, qty = 1) => {
+  const addToCart = (product, qty = 1) => {
     const jumlah = parseInt(qty, 10) || 1;
     setCart((prev) => {
       const ex = prev.find((i) => i.id === product.id);
@@ -163,67 +123,88 @@ export default function LandingPageIndustryPro() {
       return [...prev, { ...product, qty: jumlah }];
     });
     setQtyInputs((p) => ({ ...p, [product.id]: 1 }));
-  }, []);
+  };
 
-  /** Layout **/
+  // Banner & IG array
+  const banners = [banner1, banner2];
+  const igImages = [
+    igpost1,
+    igpost2,
+    igpost3,
+    igpost4,
+    igpost5,
+    igpost6,
+    igpost7,
+    igpost8,
+  ];
+
   return (
-    <div className="min-h-screen flex flex-col bg-white text-gray-900 selection:bg-yellow-200/70">
-      {/* Floating CTA WhatsApp */}
+    <div className="min-h-screen flex flex-col bg-gradient-to-tr from-yellow-50 via-blue-50 to-white font-sans text-gray-800">
+      {/* Floating WhatsApp Order Now Button */}
       <a
         href={waOrderLink}
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed z-[60] bottom-5 right-5 md:bottom-8 md:right-8 flex items-center gap-3 px-4 py-3 rounded-full bg-gradient-to-tr from-green-500 to-green-600 text-white font-extrabold text-base shadow-2xl border-4 border-white/50 hover:scale-105 transition-all duration-200 active:scale-95"
-        aria-label="Chat WhatsApp"
+        className="fixed z-[9999] bottom-6 right-6 md:bottom-8 md:right-8 flex items-center gap-3 px-5 py-3 rounded-full bg-gradient-to-tr from-green-500 to-green-600 text-white font-extrabold text-lg shadow-2xl animate-pulseOrder border-4 border-white/50 hover:scale-105 hover:from-green-600 hover:to-green-700 transition-all duration-200 active:scale-95"
+        style={{ boxShadow: "0 6px 32px 0 rgba(24,180,81,0.25)" }}
       >
-        <svg viewBox="0 0 32 32" width={28} height={28} fill="none" aria-hidden>
+        <svg
+          viewBox="0 0 32 32"
+          width={32}
+          height={32}
+          fill="none"
+          className="drop-shadow-md"
+        >
           <circle cx="16" cy="16" r="16" fill="#25D366" />
           <path
             d="M22.3 18.4c-.4-.2-2.3-1.1-2.7-1.3-.4-.1-.7-.2-1 .2-.3.3-.8.9-1 1.1-.2.2-.4.2-.8 0-.4-.2-1.5-.6-2.9-1.9-1.1-1-1.9-2.2-2.1-2.5-.2-.4 0-.6.2-.8.2-.2.4-.5.5-.7.2-.3.2-.5.3-.7.1-.2 0-.5-.1-.7s-1-2.5-1.4-3.4c-.3-.8-.6-.7-.8-.7-.2 0-.5 0-.7 0-.2 0-.6.1-.9.4-.4.3-1.1 1.1-1.1 2.7 0 1.6 1.1 3.2 1.2 3.4.2.2 2.3 3.5 5.5 4.8.7.3 1.3.5 1.8.6.8.1 1.5.1 2.1 0 .7-.1 2.2-.9 2.5-1.8.3-.9.3-1.7.2-1.9z"
             fill="#fff"
           />
         </svg>
-        <span className="hidden sm:inline">Order Cepat</span>
+        <span className="hidden sm:inline animate-bounceOrder">Chat!</span>
+        <style>{`
+          @keyframes pulseOrder {
+            0% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.7); }
+            70% { box-shadow: 0 0 0 16px rgba(39, 174, 96, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0); }
+          }
+          .animate-pulseOrder { animation: pulseOrder 2.5s infinite; }
+          @keyframes bounceOrder { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+          .animate-bounceOrder { animation: bounceOrder 1.2s infinite; }
+        `}</style>
       </a>
 
-      {/* Top Bar */}
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-yellow-100">
+      {/* Navbar (hapus nested <a>) */}
+      <nav className="bg-white/90 backdrop-blur sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="h-16 flex items-center justify-between">
+          <div className="flex justify-between items-center h-16">
             <a href="#" className="flex items-center gap-3">
               <img
                 src="/log.png"
                 alt="W3LIQUOR Logo"
-                className="w-16 h-auto object-contain"
+                className="w-20 h-auto object-contain"
               />
-              <span className="font-black tracking-wider text-lg hidden sm:block">
-                W3LIQUOR
-              </span>
             </a>
 
-            <nav
-              className="hidden md:flex items-center gap-8"
-              aria-label="Primary"
-            >
+            <div className="hidden md:flex gap-8 items-center">
               {NAV_LINKS.map((lnk) => (
                 <a
                   key={lnk.label}
                   href={lnk.href}
-                  className="text-gray-700 hover:text-yellow-700 font-semibold tracking-wide"
+                  className="text-gray-700 hover:text-liquorgold font-semibold transition tracking-wide"
                 >
                   {lnk.label}
                 </a>
               ))}
-            </nav>
+            </div>
 
+            {/* Hamburger */}
             <button
-              className="md:hidden inline-flex items-center px-3 py-2 rounded-xl ring-1 ring-gray-300 text-gray-700"
+              className="md:hidden flex items-center px-3 py-2 rounded border border-black-500 text-yellow-700"
               onClick={() => setNavbarOpen((s) => !s)}
-              aria-expanded={navbarOpen}
-              aria-controls="mobile-menu"
-              aria-label="Toggle menu"
+              aria-label="Open menu"
             >
-              <svg width="28" height="28" fill="none" aria-hidden>
+              <svg width="28" height="28" fill="none">
                 <path
                   d="M5 8h18M5 16h18"
                   stroke="currentColor"
@@ -234,149 +215,116 @@ export default function LandingPageIndustryPro() {
           </div>
         </div>
 
-        <AnimatePresence>
-          {navbarOpen && (
-            <motion.div
-              id="mobile-menu"
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="md:hidden bg-white border-t border-gray-200"
-            >
-              <div className="flex flex-col py-2 gap-1 px-5">
-                {NAV_LINKS.map((lnk) => (
-                  <a
-                    key={lnk.label}
-                    href={lnk.href}
-                    className="py-3 text-gray-700 font-medium border-b"
-                    onClick={() => setNavbarOpen(false)}
-                  >
-                    {lnk.label}
-                  </a>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </header>
-
-      {/* HERO */}
-      <section className="relative isolate overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,rgba(253,224,71,0.35),transparent_55%),radial-gradient(ellipse_at_bottom,rgba(30,64,175,0.15),transparent_55%)]" />
-        <div className="max-w-7xl mx-auto px-4 py-12 md:py-16 grid md:grid-cols-2 gap-8 items-center">
-          <div>
-            <motion.h1
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="text-3xl md:text-5xl font-black tracking-tight text-gray-900"
-            >
-              Whisky, Wine & Whatever —
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 to-yellow-800">
-                {" "}
-                100% Original.
-              </span>
-            </motion.h1>
-            <p className="mt-4 text-gray-700 text-lg leading-relaxed">
-              Premium spirits terkurasi dari seluruh dunia. Dapatkan penawaran
-              spesial & layanan cepat langsung ke pintu Anda.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <a
-                href="#products"
-                className="inline-flex items-center justify-center px-5 py-3 rounded-2xl bg-gradient-to-r from-yellow-500 to-yellow-700 text-white font-bold shadow hover:from-yellow-600 hover:to-yellow-800"
-              >
-                Belanja Sekarang
-              </a>
-              <a
-                href={waOrderLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center px-5 py-3 rounded-2xl ring-2 ring-yellow-600 text-yellow-800 font-bold hover:bg-yellow-50"
-              >
-                Chat Admin
-              </a>
+        {navbarOpen && (
+          <div className="md:hidden bg-white border-t border-gray-200">
+            <div className="flex flex-col py-2 gap-1 px-5">
+              {NAV_LINKS.map((lnk) => (
+                <a
+                  key={lnk.label}
+                  href={lnk.href}
+                  className="py-2 text-gray-700 font-medium border-b"
+                  onClick={() => setNavbarOpen(false)}
+                >
+                  {lnk.label}
+                </a>
+              ))}
             </div>
           </div>
+        )}
+      </nav>
 
-          {/* Hero Carousel */}
-          <div className="relative w-full rounded-3xl overflow-hidden shadow-2xl ring-1 ring-yellow-100">
-            <Swiper
-              modules={[Pagination, Autoplay, A11y]}
-              pagination={{ clickable: true }}
-              autoplay={{ delay: 4200, disableOnInteraction: false }}
-              slidesPerView={1}
-              loop
-              a11y={{ enabled: true }}
-              className="w-full h-full"
-            >
-              {[banner1, banner2].map((img, i) => (
-                <SwiperSlide key={i}>
-                  <img
-                    src={img}
-                    alt={`Banner ${i + 1}`}
-                    className="w-full h-full object-cover aspect-[16/9]"
-                    loading="lazy"
-                  />
-                </SwiperSlide>
-              ))}
-            </Swiper>
-          </div>
+      {/* Cart */}
+      <Cart cart={cart} setCart={setCart} />
+
+      {/* Banner Carousel */}
+      <section className="mb-8 mt-8 w-full px-2 sm:px-4 lg:px-0 max-w-6xl mx-auto">
+        <div
+          className="rounded-xl overflow-hidden w-full bg-gray-100 relative"
+          style={{ aspectRatio: "16/9" }}
+        >
+          <Swiper
+            modules={[Pagination, Autoplay]}
+            pagination={{ clickable: true }}
+            autoplay={{ delay: 4200, disableOnInteraction: false }}
+            slidesPerView={1}
+            loop={banners.length > 1} // hindari warning
+            className="w-full h-full"
+          >
+            {banners.map((img, idx) => (
+              <SwiperSlide key={idx}>
+                <img
+                  src={img}
+                  alt={`Banner ${idx + 1}`}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </SwiperSlide>
+            ))}
+          </Swiper>
         </div>
       </section>
 
-      {/* KATEGORI */}
-      <section id="categories" className="max-w-6xl mx-auto px-4 mt-4 mb-10">
+      {/* Kategori */}
+      <section
+        className="mt-2 mb-10 max-w-3xl mx-auto px-3 sm:px-4"
+        id="categories"
+      >
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl md:text-2xl font-extrabold text-stone-800 tracking-wide">
-            Cari berdasarkan Kategori
+          <h2 className="text-xl font-extrabold text-stone-800 tracking-wide">
+            Whisky Wine And Whatever
           </h2>
           {kategoriAktif && (
             <button
-              className="flex items-center gap-2 bg-stone-900 text-white font-semibold rounded-full px-3 py-1 hover:scale-105 transition-all duration-150"
+              className="flex items-center gap-2 bg-gradient-to-r from-stone-700 to-stone-800 text-white font-semibold rounded-full px-3 py-1 hover:scale-105 transition-all duration-150"
               onClick={() => setKategoriAktif("")}
             >
-              Reset
+              <svg width="12" height="12" fill="none" viewBox="0 0 20 20">
+                <path
+                  d="M10 3v14M3 10h14"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              </svg>
+              All Products
             </button>
           )}
         </div>
 
         <Swiper
-          modules={[Navigation, A11y]}
+          modules={[Navigation]}
           navigation
           slidesPerView={1}
-          spaceBetween={8}
-          loop={kategoriList.length > 5}
+          spaceBetween={2}
+          loop={kategoriList.length > 5} // loop hanya bila cukup slide
           allowTouchMove
           className="w-full"
         >
-          {chunkArray(kategoriList, 6).map((group, idx) => (
+          {chunkArray(kategoriList, 5).map((group, idx) => (
             <SwiperSlide key={idx}>
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+              <div className="grid grid-cols-5 gap-1 sm:gap-2">
                 {group.map((kat) => (
-                  <button
-                    key={kat}
-                    className={`group relative overflow-hidden rounded-2xl border bg-white p-3 shadow-sm hover:shadow transition ${
-                      kategoriAktif === kat
-                        ? "ring-2 ring-yellow-600"
-                        : "ring-1 ring-gray-200"
-                    }`}
-                    onClick={() =>
-                      setKategoriAktif(kat === kategoriAktif ? "" : kat)
-                    }
-                    aria-pressed={kategoriAktif === kat}
-                  >
-                    <img
-                      src={kategoriMap[kat] || othersImg}
-                      alt={kat}
-                      className="w-16 h-16 mx-auto object-cover rounded-full"
-                    />
-                    <span className="mt-2 block text-xs font-semibold text-center text-stone-800">
+                  <div key={kat} className="flex flex-col items-center">
+                    <button
+                      className={`overflow-hidden transition transform hover:scale-105 focus:outline-none ${
+                        kategoriAktif === kat
+                          ? "ring-2 ring-liquorgold scale-110"
+                          : ""
+                      }`}
+                      onClick={() =>
+                        setKategoriAktif(kat === kategoriAktif ? "" : kat)
+                      }
+                    >
+                      <img
+                        src={kategoriMap[kat] || othersImg}
+                        alt={kat}
+                        className="w-22 h-22 sm:w-25 sm:h-25 object-cover rounded-full mx-auto"
+                      />
+                    </button>
+                    <span className="mt-1 text-[11px] sm:text-xs font-semibold text-center text-liquordark">
                       {kat}
                     </span>
-                    <span className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-t from-black/10 to-transparent transition" />
-                  </button>
+                  </div>
                 ))}
               </div>
             </SwiperSlide>
@@ -384,57 +332,26 @@ export default function LandingPageIndustryPro() {
         </Swiper>
       </section>
 
-      {/* SEARCH */}
-      <section className="max-w-5xl mx-auto px-4 mb-8">
-        <label htmlFor="search" className="sr-only">
-          Cari produk
-        </label>
-        <div className="relative">
-          <input
-            id="search"
-            className="w-full border-2 border-yellow-800/30 rounded-2xl px-5 py-3 focus:border-yellow-800 focus:outline-none text-lg bg-white/90 shadow-sm"
-            placeholder="Search products..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            autoComplete="off"
-          />
-          <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-gray-400">
-            ⌘K
-          </div>
-        </div>
+      {/* Search Bar */}
+      <section className="mb-7 max-w-4xl mx-auto px-3">
+        <input
+          className="w-full border-2 border-grey-900 rounded-2xl px-5 py-3 focus:border-yellow-800 focus:outline-none text-lg bg-white/90"
+          placeholder=" Search products..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
       </section>
 
-      {/* PRODUCTS */}
-      <section id="products" className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-stone-800 tracking-wide">
-            {kategoriAktif ? `Produk ${kategoriAktif}` : "All Products"}
-          </h2>
-          <div className="text-sm text-gray-500">
-            {produkFiltered.length} item
-          </div>
-        </div>
-
-        {error && (
-          <div className="mb-4 rounded-xl bg-red-50 text-red-700 p-3 ring-1 ring-red-200">
-            {error}
-          </div>
-        )}
+      {/* Produk */}
+      <section className="max-w-6xl mx-auto px-3 py-2" id="products">
+        <h2 className="text-2xl font-bold text-stone-800 mb-5 tracking-wide text-center sm:text-left">
+          {kategoriAktif ? `Produk ${kategoriAktif}` : "All Products"}
+        </h2>
 
         {loading ? (
-          <div
-            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
-            aria-busy
-          >
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-72 rounded-2xl bg-gradient-to-br from-stone-100 to-stone-50 animate-pulse"
-              />
-            ))}
-          </div>
+          <div className="text-center text-gray-500 py-10">Loading...</div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {produkFiltered.length === 0 ? (
               <div className="col-span-full text-center text-gray-400 py-10">
                 No Products Found
@@ -444,65 +361,57 @@ export default function LandingPageIndustryPro() {
                 const harga = Number(liq.harga) || 0;
                 const diskon = Number(liq.diskon) || 0;
                 const finalHarga = harga - (harga * diskon) / 100;
-                const isSoldOut = Number(liq.stok) === 0;
                 return (
-                  <motion.article
+                  <div
                     key={liq.id}
-                    layout
-                    className="group bg-white rounded-2xl ring-1 ring-gray-200 shadow-sm hover:shadow-md transition p-3 flex flex-col cursor-pointer"
+                    className="bg-white rounded-2xl shadow-md flex flex-col items-center p-4 relative hover:scale-[1.02] hover:shadow-lg transition-all border border-gray-200 cursor-pointer"
                     onClick={() => setSelectedProduct(liq)}
                   >
-                    <div className="relative">
-                      {!!diskon && (
-                        <span className="absolute top-2 right-2 bg-red-600 text-white font-bold px-2 py-0.5 rounded-full text-[10px] shadow">
-                          Special Offer
-                        </span>
-                      )}
-                      {isSoldOut && (
-                        <span className="absolute top-2 left-2 bg-gray-800 text-white font-bold px-2 py-0.5 rounded-full text-[10px] shadow">
-                          Sold Out
-                        </span>
-                      )}
-                      <img
-                        src={liq.gambar || "/notfound.png"}
-                        alt={liq.nama}
-                        className="w-full aspect-square object-cover rounded-xl border"
-                        loading="lazy"
-                        onError={(e) => (e.currentTarget.src = "/notfound.png")}
-                      />
+                    {diskon > 0 && (
+                      <span className="absolute top-2 right-2 bg-red-600 text-white font-bold px-2 py-0.5 rounded-full text-xs">
+                        Special Offer
+                      </span>
+                    )}
+                    {Number(liq.stok) === 0 && (
+                      <span className="absolute top-2 left-2 bg-gray-700 text-white font-bold px-2 py-0.5 rounded-full text-xs shadow">
+                        Sold Out
+                      </span>
+                    )}
+
+                    <img
+                      src={liq.gambar || "/notfound.png"}
+                      alt={liq.nama}
+                      className="w-50 h-50 sm:w-50 sm:h-50 object-cover rounded-xl mb-2 border"
+                      onError={(e) => (e.currentTarget.src = "/notfound.png")}
+                    />
+
+                    <div className="font-semibold text-sm sm:text-base text-gray-900 text-center mb-1 line-clamp-1">
+                      {liq.nama}
                     </div>
 
-                    <div className="mt-2 flex-1">
-                      <h3
-                        className="font-semibold text-sm sm:text-base text-gray-900 line-clamp-1"
-                        title={liq.nama}
-                      >
-                        {liq.nama}
-                      </h3>
-                      <p className="text-gray-500 text-xs sm:text-sm line-clamp-2">
-                        {liq.deskripsi}
-                      </p>
+                    <div className="text-gray-500 text-xs sm:text-sm text-center mb-1 line-clamp-2">
+                      {liq.deskripsi}
                     </div>
 
-                    <div className="mt-2">
+                    <div className="text-center mb-2">
                       {diskon > 0 ? (
-                        <div className="leading-tight">
-                          <div className="line-through text-red-400 text-xs font-medium">
-                            {formatRupiah(harga)}
-                          </div>
-                          <div className="text-stone-900 font-extrabold text-lg">
-                            {formatRupiah(finalHarga)}
-                          </div>
+                        <div className="flex flex-col items-center leading-snug">
+                          <span className="line-through text-red-400 text-sm font-medium">
+                            Rp{harga.toLocaleString()}
+                          </span>
+                          <span className="text-stone-800 font-extrabold text-lg">
+                            Rp{finalHarga.toLocaleString()}
+                          </span>
                         </div>
                       ) : (
-                        <div className="text-stone-900 font-bold text-lg">
-                          {formatRupiah(harga)}
-                        </div>
+                        <span className="text-liquordark font-bold text-lg">
+                          Rp{harga.toLocaleString()}
+                        </span>
                       )}
                     </div>
 
-                    <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
-                      <span className="flex items-center font-semibold">
+                    <div className="flex items-center justify-center gap-2 text-xs text-gray-500 mb-3">
+                      <span className="flex items-center text-yellow-500 font-bold">
                         ⭐ {Number(liq.rating ?? 5).toFixed(1)}
                       </span>
                       <span>{liq.sold || 0} sold</span>
@@ -511,15 +420,15 @@ export default function LandingPageIndustryPro() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (isSoldOut) return;
+                        if (Number(liq.stok) === 0) return;
                         addToCart(liq, qtyInputs[liq.id]);
                       }}
-                      className="mt-3 relative bg-gradient-to-tr from-yellow-600 to-yellow-700 text-white font-bold px-3 py-2 rounded-xl w-full shadow hover:from-yellow-700 hover:to-yellow-800 disabled:opacity-60"
-                      disabled={isSoldOut}
+                      className="relative bg-gradient-to-tr from-liquorgoldlight to-liquorgold text-white font-bold px-3 py-2 rounded-xl w-full shadow transition hover:from-liquorgold hover:to-liquordarkgold disabled:opacity-60"
+                      disabled={Number(liq.stok) === 0}
                     >
-                      Add to Cart
+                      <span>Add to Cart</span>
                     </button>
-                  </motion.article>
+                  </div>
                 );
               })
             )}
@@ -527,117 +436,146 @@ export default function LandingPageIndustryPro() {
         )}
       </section>
 
-      {/* MODAL DETAIL */}
-      <AnimatePresence>
-        {selectedProduct && (
-          <motion.div
-            className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
-            onClick={() => setSelectedProduct(null)}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+      {/* MODAL PRODUK DETAIL */}
+      {selectedProduct && (
+        <div
+          className="fixed z-[999] inset-0 bg-black/50 flex items-center justify-center"
+          onClick={() => setSelectedProduct(null)}
+        >
+          <div
+            className="bg-white rounded-1xl max-w-md w-full p-7 relative shadow-0.5xl border-1 border-yellow-200 animate-fadeIn"
+            onClick={(e) => e.stopPropagation()}
           >
-            <motion.div
-              className="bg-white rounded-2xl max-w-lg w-full p-6 relative shadow-xl"
-              onClick={(e) => e.stopPropagation()}
-              initial={{ scale: 0.96, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.96, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 220, damping: 22 }}
+            <button
+              className="absolute top-5 right-5 text-xl text-gray-400 hover:text-red-600 transition"
+              onClick={() => setSelectedProduct(null)}
+              aria-label="Tutup"
             >
-              <button
-                className="absolute top-3 right-3 text-xl text-gray-400 hover:text-red-600"
-                onClick={() => setSelectedProduct(null)}
-                aria-label="Tutup"
-              >
-                ×
-              </button>
+              ×
+            </button>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <img
-                  src={selectedProduct.gambar || "/notfound.png"}
-                  alt={selectedProduct.nama}
-                  className="w-full aspect-square object-cover rounded-xl border"
-                  onError={(e) => (e.currentTarget.src = "/notfound.png")}
-                />
-                <div>
-                  <h3 className="font-bold text-xl text-gray-900">
-                    {selectedProduct.nama}
-                  </h3>
-                  <div className="mt-2">
-                    {Number(selectedProduct.diskon) > 0 ? (
-                      <div className="flex flex-col">
-                        <span className="line-through text-red-400 text-sm font-medium mb-1">
-                          {formatRupiah(Number(selectedProduct.harga || 0))}
-                        </span>
-                        <span className="text-gray-900 font-bold text-2xl">
-                          {formatRupiah(
-                            (Number(selectedProduct.harga || 0) *
-                              (100 - Number(selectedProduct.diskon || 0))) /
-                              100
-                          )}
-                        </span>
-                      </div>
-                    ) : (
-                      <span className="text-gray-900 font-bold text-2xl">
-                        {formatRupiah(Number(selectedProduct.harga || 0))}
-                      </span>
-                    )}
-                  </div>
+            <img
+              src={selectedProduct.gambar || "/notfound.png"}
+              alt={selectedProduct.nama}
+              className="w-36 h-36 object-cover rounded-xl mx-auto mb-4 border shadow"
+              onError={(e) => (e.currentTarget.src = "/notfound.png")}
+            />
 
-                  <p className="mt-3 text-sm text-gray-600 whitespace-pre-line">
-                    {selectedProduct.deskripsi}
-                  </p>
+            <div className="font-bold text-2xl text-gray-800 text-left mb-1">
+              {selectedProduct.nama}
+            </div>
 
-                  <div className="mt-4 flex items-center gap-4 text-sm">
-                    <span className="flex items-center font-semibold text-yellow-700">
-                      ⭐ {Number(selectedProduct.rating || 5).toFixed(1)}
-                    </span>
-                    <span className="text-gray-500">
-                      {selectedProduct.sold || 0} Sold
-                    </span>
-                  </div>
-
-                  <a
-                    href={waLink(selectedProduct.nama)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-5 inline-flex w-full items-center justify-center bg-gradient-to-tr from-yellow-700 to-yellow-600 hover:from-yellow-800 hover:to-yellow-700 text-white font-bold px-6 py-3 rounded-2xl"
-                  >
-                    Order via WhatsApp
-                  </a>
+            <div className="text-left mb-4">
+              {Number(selectedProduct.diskon) > 0 ? (
+                <div className="flex flex-col">
+                  <span className="line-through text-red-400 text-base font-medium mb-1">
+                    Rp{Number(selectedProduct.harga || 0).toLocaleString()}
+                  </span>
+                  <span className="text-gray-800 font-bold text-xl">
+                    Rp
+                    {(
+                      (Number(selectedProduct.harga || 0) *
+                        (100 - Number(selectedProduct.diskon || 0))) /
+                      100
+                    ).toLocaleString()}
+                  </span>
                 </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              ) : (
+                <span className="text-gray-800 font-bold text-xl">
+                  Rp{Number(selectedProduct.harga || 0).toLocaleString()}
+                </span>
+              )}
+            </div>
 
-      {/* CART */}
-      <Cart cart={cart} setCart={setCart} />
+            <div className="text-sm text-gray-600 text-left mb-2 whitespace-pre-line">
+              {selectedProduct.deskripsi}
+            </div>
 
-      {/* INSTAGRAM */}
-      <section id="instagram" className="w-full px-4 py-10 bg-white">
-        <h2 className="text-3xl font-bold text-center text-gray-900 mb-6">
+            <div className="flex items-center justify-left gap-5 mb-6">
+              <span className="flex items-center text-yellow-600 font-bold">
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  className="mr-1"
+                >
+                  <path d="M10 2l2.39 4.86 5.36.78-3.87 3.77.92 5.36L10 14.27l-4.8 2.5.92-5.36-3.87-3.77 5.36-.78L10 2z" />
+                </svg>
+                {Number(selectedProduct.rating || 5).toFixed(1)}
+              </span>
+              <span className="flex items-center text-gray-500 font-medium text-sm">
+                <svg
+                  width="16"
+                  height="16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                  viewBox="0 0 24 24"
+                  className="mr-1"
+                >
+                  <path d="M16 11V5a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v6m8 0a4 4 0 1 1-8 0"></path>
+                </svg>
+                {selectedProduct.sold || 0} Sold
+              </span>
+            </div>
+
+            <a
+              href={waLink(selectedProduct.nama)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block bg-gradient-to-tr from-liquordarkgold to-liquorgold hover:from-liquorgold hover:to-liquorgoldlight text-white font-bold px-6 py-3 rounded-2xl w-full text-center transition"
+            >
+              Order Now
+            </a>
+          </div>
+        </div>
+      )}
+
+      {/* About */}
+      <section
+        className="max-w-7xl mx-auto mt-16 mb-10 px-6 py-8 rounded-2xl bg-white/70 shadow-xl border border-stone-100"
+        id="about"
+      >
+        <h2 className="text-2xl font-bold text-center text-black-700 mb-4 tracking-wide">
+          W3liquor
+        </h2>
+        <p className="text-gray-700 text-center leading-relaxed text-lg">
+          Whisky Wine And Whatever 100% Original Liquor Store
+          <br />
+          At W3liquor, we’re passionate about delivering authentic,
+          premium-quality spirits from around the world. Whether you’re a whisky
+          aficionado, a wine enthusiast, or simply exploring the vibrant
+          universe of liquors, our store is your trusted destination for 100%
+          original, meticulously sourced bottles.
+          <br />
+          <br />
+          <b>Get more Special offer! chat us now</b>
+          <br />
+          <span className="text-yellow-700 text-center font-bold">
+            Find Your Favorite Liquor Here!
+          </span>
+        </p>
+      </section>
+
+      {/* Instagram manual */}
+      <section className="w-full px-2 sm:px-3 py-6 bg-white" id="instagram">
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
           Follow Us on Instagram
         </h2>
-        <p className="text-center text-gray-600 mb-6">
-          @w3liquor — promo, arrival baru, dan konten pairing seru.
-        </p>
         <Swiper
-          modules={[Autoplay, A11y]}
+          modules={[Autoplay]}
           slidesPerView={1}
-          spaceBetween={12}
+          spaceBetween={10}
           breakpoints={{
             640: { slidesPerView: 2 },
             1024: { slidesPerView: 3 },
           }}
-          loop={IG_IMAGES.length > 3}
-          autoplay={{ delay: 1600, disableOnInteraction: false }}
-          a11y={{ enabled: true }}
+          loop={igImages.length > 3}
+          autoplay={{ delay: 1500, disableOnInteraction: false }}
           className="w-full max-w-5xl mx-auto"
         >
-          {IG_IMAGES.map((src, idx) => (
+          {igImages.map((src, idx) => (
             <SwiperSlide key={idx}>
               <a
                 href="https://www.instagram.com/w3liquor/"
@@ -647,8 +585,7 @@ export default function LandingPageIndustryPro() {
                 <img
                   src={src}
                   alt={`Instagram ${idx + 1}`}
-                  className="w-full h-[220px] sm:h-[360px] md:h-[400px] object-cover object-center rounded-xl ring-1 ring-gray-200 hover:scale-[1.01] transition"
-                  loading="lazy"
+                  className="w-full h-[200px] sm:h-[500px] md:h-[400px] object-cover object-center rounded-md hover:scale-105 transition duration-200"
                 />
               </a>
             </SwiperSlide>
@@ -656,12 +593,12 @@ export default function LandingPageIndustryPro() {
         </Swiper>
       </section>
 
-      {/* OFFICIAL STORES */}
+      {/* Tokopedia & Blibli */}
       <section
+        className="w-full px-4 sm:px-10 py-16 bg-white"
         id="official-stores"
-        className="w-full px-4 sm:px-10 py-16 bg-gradient-to-b from-white to-yellow-50"
       >
-        <h2 className="text-3xl font-bold text-center text-stone-900 mb-10">
+        <h2 className="text-3xl font-bold text-center text-stone-800 mb-10">
           Shop at Our Official Stores!
         </h2>
         <div className="flex flex-wrap justify-center items-center gap-6 max-w-2xl mx-auto">
@@ -672,7 +609,11 @@ export default function LandingPageIndustryPro() {
             className="flex items-center gap-3 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-5 rounded-xl shadow-md transition duration-300 w-[260px] justify-center"
             title="Kunjungi toko Tokopedia W3LIQUOR"
           >
-            <img src={tokopedia} alt="Tokopedia W3LIQUOR" className="w-7 h-7" />
+            <img
+              src={tokopedia}
+              alt="Tokopedia weliquor/w3liquor"
+              className="w-7 h-7"
+            />
             Tokopedia Store
           </a>
 
@@ -683,86 +624,51 @@ export default function LandingPageIndustryPro() {
             className="flex items-center gap-3 bg-blue-700 hover:bg-blue-800 text-white font-semibold py-3 px-5 rounded-xl shadow-md transition duration-300 w-[260px] justify-center"
             title="Kunjungi toko Blibli W3LIQUOR"
           >
-            <img src={blibli} alt="Blibli W3LIQUOR" className="w-7 h-7" />
+            <img src={blibli} alt="Blibli w3liquor" className="w-7 h-7" />
             Blibli Store
           </a>
         </div>
       </section>
 
-      {/* ABOUT */}
-      <section
-        id="about"
-        className="max-w-7xl mx-auto mt-10 mb-12 px-6 py-10 rounded-3xl bg-white shadow-xl ring-1 ring-yellow-100"
-      >
-        <div className="grid md:grid-cols-3 gap-6 items-center">
-          <div className="md:col-span-2">
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">W3liquor</h2>
-            <p className="text-gray-700 leading-relaxed text-base">
-              Whisky Wine And Whatever — 100% Original Liquor Store. Kami
-              menghadirkan spirit otentik dan berkualitas premium dengan kurasi
-              ketat. Dari whisky untuk kolektor hingga liqueur untuk mixologist,
-              semua ada di sini.
-              <br />
-              <br />
-              <b>Dapatkan promo eksklusif — chat kami sekarang!</b>
-              <br />
-              <span className="text-yellow-700 font-bold">
-                Find Your Favorite Liquor Here!
-              </span>
-            </p>
-          </div>
-          <div className="bg-gradient-to-tr from-yellow-100 to-yellow-50 p-6 rounded-2xl ring-1 ring-yellow-200">
-            <ul className="space-y-3 text-sm text-gray-800">
-              <li>
-                <b>Pengiriman Instan/Sameday:</b> Gojek
-              </li>
-              <li>
-                <b>Lokasi:</b> Jakarta Barat
-              </li>
-              <li>
-                <b>Jam Operasional:</b> Senin - Minggu | 11:00 - 22:00
-              </li>
-              <li>
-                <b>Kontak:</b> WhatsApp 0812-9972-3970
-              </li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      {/* FOOTER */}
+      {/* Footer */}
       <footer
+        className="w-full mt-12 py-8 bg-gradient-to-r from-liquorgoldlight to-liquordarkgold text-white shadow-inner"
         id="contact"
-        className="w-full mt-auto py-8 bg-gradient-to-r from-yellow-500 to-yellow-700 text-white"
       >
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-6 px-5">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-5 px-5">
           <div>
-            <div className="font-black text-2xl tracking-widest">
-              W3<span className="text-yellow-100">LIQUOR</span>
+            <div className="font-bold text-2xl mb-1 tracking-widest">
+              W3<span className="text-grey-800">LIQUOR</span>
             </div>
-            <div className="text-xs opacity-90">
+            <div className="text-xs">
               © {new Date().getFullYear()} W3LIQUOR
               <br />
-              <span className="text-[10px]">Your One-Stop Liquor Store</span>
+              <span className="text-[10px] text-yellow-100/80">
+                W3Liquor Your One Stop Shop liquor Store
+              </span>
             </div>
           </div>
 
           <div className="text-sm">
-            <div className="font-semibold mb-1">More Information</div>
-            <div>Pengiriman Instan/Sameday: Gojek</div>
-            <div>Location: Jakarta Barat</div>
-            <div>Jam Operasional: Senin - Minggu | 11:00 - 22:00</div>
+            <div className="font-semibold mb-1">More Information:</div>
+            <div>
+              Pengiriman Instan/Sameday: <span>Gojek</span>
+            </div>
+            <div>
+              Location: <span>Jakarta Barat</span>
+            </div>
+            <div>
+              Jam Operational: <span>Senin - Minggu | 11:00 - 22:00</span>
+            </div>
           </div>
 
           <div className="text-sm">
-            <div className="font-semibold mb-1">Contact</div>
+            <div className="font-semibold mb-1">Contact:</div>
             <div>
               WhatsApp:{" "}
               <a
-                href={`https://wa.me/${WA_NUMBER}`}
+                href="https://wa.me/6281299723970"
                 className="underline font-medium"
-                target="_blank"
-                rel="noopener noreferrer"
               >
                 0812-9972-3970
               </a>
@@ -770,7 +676,9 @@ export default function LandingPageIndustryPro() {
             <div>
               Email:{" "}
               <a
-                href="mailto:drunkwliquor@gmail.com"
+                href="https://mail.google.com/mail/?view=cm&fs=1&to=drunkwliquor@gmail.com"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="underline font-medium"
               >
                 wwwliquor@gmail.com
@@ -778,34 +686,40 @@ export default function LandingPageIndustryPro() {
             </div>
           </div>
 
-          <div className="flex gap-6 text-base items-center">
+          <div className="flex gap-6 text-xl items-center">
             <a
               href="https://www.instagram.com/w3liquor"
-              className="hover:text-yellow-200"
+              className="hover:text-liquorgold flex items-center gap-1"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="Instagram"
+              title="Instagram"
             >
-              Instagram
+              <span className="hidden md:inline">Instagram</span>
             </a>
             <a
               href="https://tokopedia.link/aiKJUeadaVb"
-              className="hover:text-yellow-200"
+              className="hover:text-liquorgold flex items-center gap-1"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="Tokopedia"
+              title="Tokopedia"
             >
-              Tokopedia
+              <span className="hidden md:inline">Tokopedia</span>
             </a>
             <a
               href="https://blibli.onelink.me/GNtk/ys8uoloo"
-              className="hover:text-yellow-200"
+              className="hover:text-liquorgold flex items-center gap-1"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="Blibli"
+              title="Blibli"
             >
-              Blibli
+              <span className="hidden md:inline">Blibli</span>
             </a>
           </div>
         </div>
-        <div className="text-xs text-yellow-100/90 text-center mt-4 md:hidden">
+        <div className="text-xs text-yellow-100/80 text-center mt-4 md:hidden">
           © {new Date().getFullYear()} W3LIQUOR
         </div>
       </footer>
